@@ -64,3 +64,21 @@ def test_scanner_engine_respects_exclusions(tmp_path: Path) -> None:
     # .git should be ignored by default
     assert summary.total_files_scanned == 1
     assert summary.total_sensitive_files == 0
+
+
+def test_scanner_engine_multiple_directories(tmp_path: Path) -> None:
+    dir1 = tmp_path / "dir1"
+    dir1.mkdir()
+    (dir1 / "file1.txt").write_text("Contact: 9876543210", encoding="utf-8")
+
+    dir2 = tmp_path / "dir2"
+    dir2.mkdir()
+    (dir2 / "file2.txt").write_text("Clean file content", encoding="utf-8")
+
+    engine = ScannerEngine()
+    summary = engine.scan_directories([str(dir1), str(dir2)])
+
+    assert summary.total_files_scanned == 2
+    assert summary.total_sensitive_files == 1
+    assert summary.total_clean_files == 1
+    assert summary.total_pii_instances == 1

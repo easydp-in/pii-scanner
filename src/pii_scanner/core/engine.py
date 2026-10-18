@@ -18,6 +18,7 @@ from pii_scanner.extractors.excel_scanner import ExcelExtractor
 from pii_scanner.extractors.text_scanner import TextExtractor
 
 DEFAULT_IGNORED_DIRS = {
+    # Developer & Build Artifacts
     ".git",
     "node_modules",
     "venv",
@@ -30,7 +31,32 @@ DEFAULT_IGNORED_DIRS = {
     "build",
     ".idea",
     ".vscode",
+    # OS System Directories (for whole-drive scans)
+    "Windows",
+    "Program Files",
+    "Program Files (x86)",
+    "$Recycle.Bin",
+    "System Volume Information",
+    "System",
+    "Library",
+    "Applications",
+    "proc",
+    "sys",
+    "dev",
 }
+
+
+def get_common_user_directories() -> list[str]:
+    """Return standard user data directories (Desktop, Documents, Downloads)."""
+    home = Path.home()
+    candidates = [
+        home / "Desktop",
+        home / "Documents",
+        home / "Downloads",
+        home / "OneDrive",
+    ]
+    return [str(p) for p in candidates if p.exists() and p.is_dir()]
+
 
 DEFAULT_SUPPORTED_EXTENSIONS = {
     ".csv": CSVExtractor,
@@ -156,4 +182,52 @@ class ScannerEngine:
             stale_files_over_1y=stale_1y,
             stale_files_over_3y=stale_3y,
             results=results,
+        )
+
+    def scan_directories(
+        self,
+        target_paths: list[str],
+        progress_callback: Callable[[str, int, int], None] | None = None,
+        exclude_patterns: list[str] | None = None,
+    ) -> DataInventorySummary:
+        """Scan multiple directory targets and aggregate findings into a single summary."""
+        all_results: list[FileScanResult] = []
+        by_category: dict[str, int] = defaultdict(int)
+        by_type: dict[str, int] = defaultdict(int)
+        high_risk_files: list[str] = []
+        stale_1y = 0
+        stale_3y = 0
+
+        for path in target_paths:
+            try:
+                sub_summary = self.scan_directory(path, progress_callback, exclude_patterns)
+                all_results.extend(sub_summary.results)
+                for k, v in sub_summary.by_category.items():
+                    by_category[k] += v
+                for k, v in sub_summary.by_type.items():
+                    by_type[k] += v
+                high_risk_files.extend(sub_summary.high_risk_files)
+                stale_1y += sub_summary.stale_files_over_1y
+                stale_3y += sub_summary.stale_files_over_3y
+            except Exception:
+                continue
+
+        total_files = len(all_results)
+        sensitive_count = sum(1 for r in all_results if r.is_sensitive)
+        total_pii = sum(by_type.values())
+
+        return DataInventorySummary(
+            scanner_version=__version__,
+            scan_timestamp=datetime.now(timezone.utc),
+            target_path=", ".join(target_paths),
+            total_files_scanned=total_files,
+            total_sensitive_files=sensitive_count,
+            total_clean_files=total_files - sensitive_count,
+            total_pii_instances=total_pii,
+            by_category=dict(by_category),
+            by_type=dict(by_type),
+            high_risk_files=high_risk_files,
+            stale_files_over_1y=stale_1y,
+            stale_files_over_3y=stale_3y,
+            results=all_results,
         )

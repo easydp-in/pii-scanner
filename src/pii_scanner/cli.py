@@ -59,6 +59,12 @@ def create_parser() -> argparse.ArgumentParser:
         help="Comma-separated path substrings to exclude from scan",
     )
     scan_parser.add_argument(
+        "-u",
+        "--user-dirs",
+        action="store_true",
+        help="Automatically scan standard user data folders (Desktop, Documents, Downloads, OneDrive)",
+    )
+    scan_parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
@@ -121,16 +127,26 @@ def run_cli(args: list[str] | None = None) -> int:
         return e.code if isinstance(e.code, int) else 0
 
     if parsed.command == "scan":
-        target = parsed.path
+        from pii_scanner.core.engine import get_common_user_directories
+
+        targets = [parsed.path]
+        if parsed.user_dirs:
+            detected_dirs = get_common_user_directories()
+            if detected_dirs:
+                targets = detected_dirs
+
         formats = [f.strip().lower() for f in parsed.format.split(",") if f.strip()]
         out_dir = Path(parsed.output_dir)
         excludes = [ex.strip() for ex in parsed.exclude.split(",") if ex.strip()]
 
         engine = ScannerEngine()
         try:
-            summary = engine.scan_directory(target, exclude_patterns=excludes)
+            if len(targets) == 1:
+                summary = engine.scan_directory(targets[0], exclude_patterns=excludes)
+            else:
+                summary = engine.scan_directories(targets, exclude_patterns=excludes)
         except Exception as e:
-            print(f"[Error] Failed to scan {target}: {e}", file=sys.stderr)
+            print(f"[Error] Failed to scan {targets}: {e}", file=sys.stderr)
             return 1
 
         # Output reporters

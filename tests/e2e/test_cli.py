@@ -77,3 +77,14 @@ def test_cli_tally(tmp_path: Path) -> None:
         assert code == 0
         assert (out_dir / "tally_report.html").exists()
         assert (out_dir / "tally_report.json").exists()
+
+
+def test_cli_user_dirs(tmp_path: Path) -> None:
+    from unittest.mock import patch
+
+    mock_dirs = [str(tmp_path)]
+    (tmp_path / "note.txt").write_text("Contact: 9876543210", encoding="utf-8")
+
+    with patch("pii_scanner.core.engine.get_common_user_directories", return_value=mock_dirs):
+        code = run_cli(["scan", "--user-dirs", "-q", "-o", str(tmp_path / "out")])
+        assert code == 0
