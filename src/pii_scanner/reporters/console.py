@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from pii_scanner import __issues_url__
 from pii_scanner.core.models import DataInventorySummary
 
 EASYDP_BANNER = """[bold cyan]
@@ -103,6 +104,9 @@ class ConsoleReporter:
 
             render_console.print(files_table)
 
+        footer_line = f"[dim]Report false alarms, errors, or feedback: [underline]{__issues_url__}[/underline][/dim]"
+        render_console.print(footer_line)
+
         output_str = buf.getvalue()
         # Also print directly to user console
         self.console.print(EASYDP_BANNER)
@@ -112,5 +116,6 @@ class ConsoleReporter:
             self.console.print(types_table)
         if sensitive_results:
             self.console.print(files_table)
+        self.console.print(footer_line)
 
         return output_str

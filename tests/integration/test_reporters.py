@@ -29,6 +29,8 @@ def test_reporters_output(tmp_path: Path) -> None:
     assert "https://easydp.in" in terminal_output
     assert "LEGAL & COMPLIANCE DISCLAIMER" in terminal_output
     assert "Aadhaar Number" in terminal_output
+    assert "Report false alarms, errors, or feedback" in terminal_output
+    assert "https://github.com/easydp-in/pii-scanner/issues/new" in terminal_output
 
     # 2. Test JSON Reporter
     json_rep = JSONReporter()
@@ -51,6 +53,8 @@ def test_reporters_output(tmp_path: Path) -> None:
     html_content = html_path.read_text(encoding="utf-8")
     assert "EasyDP" in html_content
     assert "easydp.in" in html_content
+    assert "Report Error" in html_content
+    assert "https://github.com/easydp-in/pii-scanner/issues/new" in html_content
     assert (
         "LEGAL &amp; COMPLIANCE DISCLAIMER" in html_content
         or "LEGAL & COMPLIANCE DISCLAIMER" in html_content

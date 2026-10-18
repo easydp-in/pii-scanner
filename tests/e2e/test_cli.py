@@ -88,3 +88,28 @@ def test_cli_user_dirs(tmp_path: Path) -> None:
     with patch("pii_scanner.core.engine.get_common_user_directories", return_value=mock_dirs):
         code = run_cli(["scan", "--user-dirs", "-q", "-o", str(tmp_path / "out")])
         assert code == 0
+
+
+def test_cli_report_error(capsys: object) -> None:
+    from unittest.mock import patch
+
+    with patch("webbrowser.open") as mock_open:
+        # 1. Test subcommand with --no-browser
+        code1 = run_cli(["report-error", "--no-browser"])
+        assert code1 == 0
+        mock_open.assert_not_called()
+
+        # 2. Test flag with --no-browser
+        code1_flag = run_cli(["--report-error", "--no-browser"])
+        assert code1_flag == 0
+        mock_open.assert_not_called()
+
+        # 3. Test flag with browser open
+        code2 = run_cli(["--report-error"])
+        assert code2 == 0
+        mock_open.assert_called_once_with("https://github.com/easydp-in/pii-scanner/issues/new")
+
+    with patch("webbrowser.open") as mock_open2:
+        code3 = run_cli(["--report-issue"])
+        assert code3 == 0
+        mock_open2.assert_called_once_with("https://github.com/easydp-in/pii-scanner/issues/new")

@@ -9,7 +9,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from pii_scanner import __homepage__, __version__
+from pii_scanner import __homepage__, __issues_url__, __version__
 from pii_scanner.core.engine import ScannerEngine
 from pii_scanner.extractors.tally import TallyConnector
 from pii_scanner.reporters.console import ConsoleReporter
@@ -37,6 +37,17 @@ def create_parser() -> argparse.ArgumentParser:
         "--version",
         action="version",
         version=f"EasyDP Local PII Scanner v{__version__} ({__homepage__})",
+    )
+    parser.add_argument(
+        "--report-error",
+        "--report-issue",
+        action="store_true",
+        help="Open GitHub Issues page in your default browser to report an error or false positive",
+    )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Print the URL instead of launching the default browser (used with --report-error)",
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -115,6 +126,17 @@ def create_parser() -> argparse.ArgumentParser:
         help="Suppress terminal output",
     )
 
+    # Command: report-error
+    report_parser = subparsers.add_parser(
+        "report-error",
+        help="Open GitHub Issues page to report a bug or false positive",
+    )
+    report_parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Print the URL instead of launching the default browser",
+    )
+
     return parser
 
 
@@ -135,6 +157,15 @@ def run_cli(args: list[str] | None = None) -> int:
         parsed = parser.parse_args(args)
     except SystemExit as e:
         return e.code if isinstance(e.code, int) else 0
+
+    if getattr(parsed, "report_error", False) or parsed.command == "report-error":
+        no_browser = getattr(parsed, "no_browser", False)
+        print(f"[EasyDP] GitHub Issues & Error Reporting: {__issues_url__}")
+        if not no_browser:
+            import webbrowser
+
+            webbrowser.open(__issues_url__)
+        return 0
 
     if parsed.command == "scan":
         from pii_scanner.core.engine import get_common_user_directories

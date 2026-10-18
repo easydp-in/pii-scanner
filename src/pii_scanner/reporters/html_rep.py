@@ -3,7 +3,7 @@
 from html import escape
 from pathlib import Path
 
-from pii_scanner import __homepage__, __version__
+from pii_scanner import __homepage__, __issues_url__, __version__
 from pii_scanner.core.models import DataInventorySummary
 
 HTML_TEMPLATE = """<!DOCTYPE html>
@@ -104,6 +104,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             <div class="header-badges">
                 <span class="badge badge-offline">🔒 100% Offline (Zero Cloud Egress)</span>
                 <span class="badge badge-version">v__VERSION__</span>
+                <a href="__ISSUES_URL__" target="_blank" class="badge" style="background:#1E293B;color:#93C5FD;text-decoration:none;border:1px solid #3B82F6;">🐞 Report Error</a>
             </div>
         </div>
     </header>
@@ -174,7 +175,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         <div class="footer">
             Generated locally by <a href="__HOMEPAGE__" target="_blank">EasyDP.in</a> — India's Data Protection &amp; DPDP Compliance Platform.<br>
-            Scan Timestamp: __SCAN_TIMESTAMP__ UTC
+            Scan Timestamp: __SCAN_TIMESTAMP__ UTC • <a href="__ISSUES_URL__" target="_blank">Report Error / Issue on GitHub</a>
         </div>
 
     </div>
@@ -265,6 +266,7 @@ class HTMLReporter:
             .replace("__STALE_3Y__", str(summary.stale_files_over_3y))
             .replace("__CHART_ROWS__", chart_html)
             .replace("__TABLE_ROWS__", table_html)
+            .replace("__ISSUES_URL__", str(__issues_url__))
             .replace("__SCAN_TIMESTAMP__", summary.scan_timestamp.strftime("%Y-%m-%d %H:%M:%S"))
         )
 
