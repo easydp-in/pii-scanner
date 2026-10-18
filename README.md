@@ -60,20 +60,32 @@
   - **UPI Virtual Payment Addresses**: Identifies handles (`user@okhdfcbank`, `mobile@paytm`, `name@ybl`).
   - **Email Addresses**: RFC compliant email pattern matching for personal and corporate mailboxes.
 
+#### Supported PII & Statutory Checksum Matrix
+
+| Identifier Type | DPDP Category | Scope | Statutory Checksum & Validation Logic | Safe Masking Format |
+| :--- | :--- | :---: | :--- | :--- |
+| **Aadhaar Number** | Identity / Statutory | B2C | **Verhoeff Dihedral ($D_5$) algorithm**; rejects numbers starting with `0` or `1` | `XXXX-XXXX-2562` |
+| **PAN Card** | Identity / Tax | B2C & B2B | 4th character entity classification (`P`=Individual, `C`=Company, `F`=Firm/LLP, `T`=Trust, `H`=HUF) | `XXXXX1234F (P)` |
+| **GSTIN** | Commercial Tax | B2B | State code (01–37, 97, 99), embedded PAN validation, and **Mod-36 check digit** | `27XXXXX9603R1ZN` |
+| **Bank IFSC Code** | Financial / Banking | B2C & B2B | RBI standard 11-char pattern (`^[A-Z]{4}0[A-Z0-9]{6}$`) for branch payment routing | `SBIN0***234` |
+| **UPI VPA Handle** | Financial / Payment | B2C & B2B | Payment handles (`user@okhdfcbank`, `mobile@paytm`, `merchant@ybl`, etc.) | `r***a@okhdfcbank` |
+| **Indian Mobile** | Contact | B2C & B2B | National Numbering Plan (+91/0/6–9) with digit-boundary isolation | `+91-XXXXX-43210` |
+| **Email Address** | Contact | B2C & B2B | RFC-5322 pattern matching for personal and corporate mailboxes | `r***a@example.com` |
+
 ### 2. Multi-Format Document & Data Source Support
-- **Office Documents & Contracts**:
-  - **Microsoft Word (`.docx`, `.dotx`)**: Native extraction of paragraphs, tables, and headers/footers from Word packages with zero external runtime dependencies.
-  - **OpenDocument (`.odt`, `.ods`)**: Native parsing for LibreOffice / OpenOffice word processing and spreadsheet files.
-  - **Rich Text Format (`.rtf`)**: Scans formatted salary certificates, HR letters, and legacy payroll records.
-- **Digital PDFs (`.pdf`)**:
-  - Extracts text across digital PDF pages (invoices, account statements, tax receipts) using pure-Python `pypdf`.
-- **Spreadsheets & Tabular Data**:
-  - **Excel (`.xlsx`, `.xlsm`)**: Streaming row-by-row inspection via `openpyxl`.
-  - **Delimited Files (`.csv`, `.tsv`)**: High-throughput streaming chunk reader.
-- **Plain Text, Code & Configuration**:
-  - `.txt`, `.log`, `.md`, `.json`, `.xml`, `.sql`, `.yaml`, `.yml`, `.env`.
-- **Live Accounting ERP**:
-  - Tally ERP 9 / TallyPrime live XML connector over local loopback (`127.0.0.1:9000`).
+
+#### Document Type Support Matrix
+
+| Category | File Extensions | Extractor Engine | Extracted Scope & Use Cases |
+| :--- | :--- | :--- | :--- |
+| **Word Documents** | `.docx`, `.dotx` | Native XML Streamer | Paragraphs, tables, headers, and footers (employment contracts, NDAs, HR letters, resumes) |
+| **Digital PDFs** | `.pdf` | Pure-Python `pypdf` | Full text across all pages (invoices, salary slips, tax receipts, bank statements) |
+| **OpenDocument** | `.odt`, `.ods` | Native XML Streamer | LibreOffice Writer documents & Calc spreadsheets |
+| **Rich Text Format** | `.rtf` | RTF Control Stripper | Formatted salary certificates, HR letters, and legacy payroll records |
+| **Spreadsheets** | `.xlsx`, `.xlsm` | Streaming `openpyxl` | Row-by-row, column-by-column cell values across all sheets |
+| **Delimited Data** | `.csv`, `.tsv` | Streaming CSV parser | Customer records, transaction dumps, CRM exports |
+| **Text, Code & Logs** | `.txt`, `.log`, `.md`, `.json`, `.xml`, `.sql`, `.yaml`, `.yml`, `.env` | Chunked Text Stream | App logs, server dumps, configuration files, SQL database dumps |
+| **Accounting ERP** | Port 9000 XML | Local Loopback XML | Live Tally ERP 9 / TallyPrime customer ledgers, sundry debtors & creditors |
 
 ### 3. Data Ownership & Governance Metrics
 - **Types & Quantities Owned**: Surfaces exact counts per PII type and broad categories (*Identity*, *Financial*, *Contact*).
@@ -194,6 +206,140 @@ easydp-scan scan ./data -f json -q
 Ensure Tally ERP 9 or Tally Prime is running on your machine (ODBC/HTTP port 9000 enabled):
 ```bash
 easydp-scan tally --port 9000 --format html,cli --output-dir ./tally_reports
+```
+
+---
+
+## Sample Report Outputs
+
+EasyDP Local PII Scanner generates three distinct reporting formats locally with **safe masking on all personal identifiers**:
+
+### 1. Rich Terminal Console Output
+When executed from the command line, the scanner renders an EasyDP branded ASCII banner, a DPDP compliance overview, a data ownership breakdown by type, and a location registry of sensitive files:
+
+```text
+  ______                     _____  _____
+ |  ____|                   |  __ \|  __ \
+ | |__   __ _ ___ _   _     | |  | | |__) |
+ |  __| / _` / __| | | |    | |  | |  ___/
+ | |___| (_| \__ \ |_| |    | |__| | |
+ |______\__,_|___/\__, |    |_____/|_|
+                   __/ |  .in
+                  |___/   Local PII Scanner
+
+EasyDP Local PII Scanner
+Enterprise-grade, 100% offline DPDP compliance scanner | https://easydp.in
+
++------------------------------------------------------------------------------+
+| [!] LEGAL & COMPLIANCE DISCLAIMER                                            |
+| 1. NOT LEGAL ADVICE: Assists with information governance under DPDP Act 2023.|
+| 2. USER AUTHORIZATION: Operator certifies lawful authority to scan targets.  |
+| 3. PRIVACY GUARANTEE: Scans run 100% locally. Zero personal data leaves PC.  |
+| 4. MASKING: All sensitive values (Aadhaar, PAN, etc.) are strictly masked.   |
++------------------------------------------------------------------------------+
+                        Scan Overview & DPDP Metrics                         
++-------------------------------+----------------------------------------------+
+| Metric                        | Value                                        |
++-------------------------------+----------------------------------------------+
+| Target Path                   | ./sample_data                                |
+| Scan Timestamp (UTC)          | 2026-10-18 09:46:48                          |
+| Total Files Scanned           | 4                                            |
+| Sensitive Files Identified    | 3                                            |
+| Clean Files                   | 1                                            |
+| Total Sensitive PII Instances | 22                                           |
+| High-Risk Exposure Files      | 1 (Downloads/Desktop/Exports)                |
+| Retention Alert (>1y old)     | 0                                            |
+| Retention Alert (>3y old)     | 0                                            |
++-------------------------------+----------------------------------------------+
+      Data Ownership Breakdown (Types & Quantities)       
++----------------------+----------------+----------------+
+| PII Data Type        | Quantity Found | Share of Total |
++----------------------+----------------+----------------+
+| PAN Card             |              6 |          27.3% |
+| Indian Mobile Number |              5 |          22.7% |
+| UPI VPA Handle       |              4 |          18.2% |
+| Email Address        |              4 |          18.2% |
+| Aadhaar Number       |              2 |           9.1% |
+| GSTIN (Tax ID)       |              1 |           4.5% |
++----------------------+----------------+----------------+
+                       Sensitive Files & Findings Details                       
++-----------------------+-----------+-----------------------+------------------+
+| File Name             | PII Count | Findings Breakdown    | Sample Masked    |
++-----------------------+-----------+-----------------------+------------------+
+| vendor_agreement.docx |         3 | Aadhaar: 1, PAN: 1,   | XXXX-XXXX-2562,  |
+|                       |           | GSTIN: 1              | XXXXX1234F       |
+| customers_sample.csv  |        17 | Mobile: 4, UPI: 4,    | +91-XXXXX-43210, |
+|                       |           | Email: 4, Aadhaar: 1  | r***a@example    |
+| salary_certificate.rtf|         2 | PAN: 1, Mobile: 1     | XXXXX5678K       |
++-----------------------+-----------+-----------------------+------------------+
+```
+
+### 2. Interactive Offline HTML Dashboard (`scan_report.html`)
+The HTML dashboard is **100% self-contained** (inline CSS and zero external JavaScript/CDN dependencies). Features include:
+- **Real-Time Search**: Instant fuzzy filtering by filename, PII type, or file extension.
+- **Filter Pills**: One-click pills to isolate high-risk folders (`Desktop`, `Downloads`) and stale files (>1y, >3y retention risk).
+- **Statutory Categories Chart**: Visual distribution across *Identity & Official*, *Financial & Banking*, and *Contact Details*.
+- **Location Breadcrumb**: Exact paragraph (`Para 3`), page (`Page 2`), row (`Row 14`), or line index where sensitive data resides.
+- **Offline Sharing**: Can be emailed, archived, or opened in any modern browser without an internet connection.
+
+### 3. DPDP JSON Data Inventory Schema (`scan_report.json`)
+Conforms to `@context: "https://easydp.in/schema/v1/pii-inventory.json"` for programmatic integration with enterprise data catalogs:
+
+```json
+{
+  "@context": "https://easydp.in/schema/v1/pii-inventory.json",
+  "generator": "EasyDP Local PII Scanner v0.1.0 (https://easydp.in)",
+  "legal_disclaimer": "This document is an automated technical data inventory generated for privacy governance under the DPDP Act 2023. Scans ran 100% locally with zero remote data egress.",
+  "data_ownership_inventory": {
+    "target_path": "./sample_data",
+    "scan_timestamp": "2026-10-18T09:51:02.268176+00:00",
+    "total_files_scanned": 4,
+    "total_sensitive_files": 3,
+    "total_clean_files": 1,
+    "total_pii_instances": 22,
+    "by_category": {
+      "Identity & Official Identifiers": 8,
+      "Financial & Banking Details": 5,
+      "Contact & Communications": 9
+    },
+    "by_type": {
+      "Aadhaar Number": 2,
+      "PAN Card": 6,
+      "GSTIN (Tax ID)": 1,
+      "Indian Mobile Number": 5,
+      "UPI VPA Handle": 4,
+      "Email Address": 4
+    },
+    "high_risk_files": [
+      "./sample_data/customers_sample.csv"
+    ],
+    "retention_staleness": {
+      "files_over_1_year": 0,
+      "files_over_3_years": 0
+    }
+  },
+  "findings": [
+    {
+      "file_name": "vendor_agreement.docx",
+      "file_size_bytes": 487,
+      "is_sensitive": true,
+      "findings_count": 3,
+      "findings_by_type": {
+        "Aadhaar Number": 1,
+        "PAN Card": 1,
+        "GSTIN (Tax ID)": 1
+      },
+      "sample_findings": [
+        {
+          "pii_type": "Aadhaar Number",
+          "masked_value": "XXXX-XXXX-2562",
+          "location": "document, Para 2",
+          "confidence": 1.0
+        }
+      ]
+    }
+  ]
+}
 ```
 
 ---
