@@ -1040,24 +1040,27 @@
           id: 'windows',
           name: 'Windows',
           tab: 'pwsh',
-          heroLabel: 'Download for Windows (.exe)',
-          subtext: 'Auto-detected <strong>Windows</strong> • Also available for: <a href="javascript:void(0)" onclick="switchTab(\'sh\')">macOS</a> • <a href="javascript:void(0)" onclick="switchTab(\'sh\')">Linux</a> • <a href="javascript:void(0)" onclick="switchTab(\'pip\')">Python (pip)</a>'
+          heroLabel: 'Download EasyDP Scanner (.exe)',
+          downloadUrl: 'https://github.com/easydp-in/pii-scanner/releases/latest/download/easydp-scan-windows-amd64.exe',
+          subtext: 'Auto-detected <strong>Windows</strong> • Standalone single .exe • Also available for: <a href="javascript:void(0)" onclick="switchTab(\'sh\')">macOS (.app / CLI)</a> • <a href="javascript:void(0)" onclick="switchTab(\'sh\')">Linux</a> • <a href="javascript:void(0)" onclick="switchTab(\'pip\')">Python (pip)</a>'
         };
       } else if (platform.includes('mac') || ua.includes('macintosh') || ua.includes('mac os')) {
         return {
           id: 'mac',
           name: 'macOS',
           tab: 'sh',
-          heroLabel: 'Download for macOS (Universal)',
-          subtext: 'Auto-detected <strong>macOS</strong> • Also available for: <a href="javascript:void(0)" onclick="switchTab(\'pwsh\')">Windows (.exe)</a> • <a href="javascript:void(0)" onclick="switchTab(\'sh\')">Linux</a> • <a href="javascript:void(0)" onclick="switchTab(\'pip\')">Python (pip)</a>'
+          heroLabel: 'Download EasyDP Scanner for Mac (.zip / .app)',
+          downloadUrl: 'https://github.com/easydp-in/pii-scanner/releases/latest/download/EasyDP-Scanner-macOS.zip',
+          subtext: 'Auto-detected <strong>macOS</strong> • Includes <strong>EasyDP Scanner.app</strong>, double-click <strong>.command</strong>, & CLI • Also available for: <a href="javascript:void(0)" onclick="switchTab(\'pwsh\')">Windows (.exe)</a> • <a href="javascript:void(0)" onclick="switchTab(\'sh\')">Linux</a> • <a href="javascript:void(0)" onclick="switchTab(\'pip\')">Python (pip)</a>'
         };
       } else if (platform.includes('linux') || ua.includes('linux')) {
         return {
           id: 'linux',
           name: 'Linux',
           tab: 'sh',
-          heroLabel: 'Download for Linux (x86_64)',
-          subtext: 'Auto-detected <strong>Linux</strong> • Also available for: <a href="javascript:void(0)" onclick="switchTab(\'pwsh\')">Windows (.exe)</a> • <a href="javascript:void(0)" onclick="switchTab(\'sh\')">macOS</a> • <a href="javascript:void(0)" onclick="switchTab(\'pip\')">Python (pip)</a>'
+          heroLabel: 'Download EasyDP Scanner for Linux (x86_64)',
+          downloadUrl: 'https://github.com/easydp-in/pii-scanner/releases/latest/download/easydp-scan-linux-amd64',
+          subtext: 'Auto-detected <strong>Linux</strong> • Standalone binary • Also available for: <a href="javascript:void(0)" onclick="switchTab(\'sh\')">macOS (.app)</a> • <a href="javascript:void(0)" onclick="switchTab(\'pwsh\')">Windows (.exe)</a> • <a href="javascript:void(0)" onclick="switchTab(\'pip\')">Python (pip)</a>'
         };
       }
       return {
@@ -1065,7 +1068,8 @@
         name: 'Unix/Windows',
         tab: 'sh',
         heroLabel: 'Download Standalone Binaries',
-        subtext: 'Available for: <a href="javascript:void(0)" onclick="switchTab(\'pwsh\')">Windows (.exe)</a> • <a href="javascript:void(0)" onclick="switchTab(\'sh\')">macOS</a> • <a href="javascript:void(0)" onclick="switchTab(\'sh\')">Linux</a>'
+        downloadUrl: 'https://github.com/easydp-in/pii-scanner/releases/latest',
+        subtext: 'Available for: <a href="https://github.com/easydp-in/pii-scanner/releases/latest/download/EasyDP-Scanner-macOS.zip">macOS (.app)</a> • <a href="https://github.com/easydp-in/pii-scanner/releases/latest/download/easydp-scan-windows-amd64.exe">Windows (.exe)</a> • <a href="https://github.com/easydp-in/pii-scanner/releases/latest/download/easydp-scan-linux-amd64">Linux</a>'
       };
     }
 
@@ -1074,7 +1078,10 @@
       switchTab(detected.tab);
 
       const heroBtn = document.getElementById('hero-download-btn');
-      if (heroBtn) heroBtn.textContent = detected.heroLabel;
+      if (heroBtn) {
+        heroBtn.textContent = detected.heroLabel;
+        if (detected.downloadUrl) heroBtn.href = detected.downloadUrl;
+      }
 
       const heroSub = document.getElementById('hero-os-subtext');
       if (heroSub) heroSub.innerHTML = detected.subtext;
