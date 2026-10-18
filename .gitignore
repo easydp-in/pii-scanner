@@ -58,3 +58,4 @@ report.html
 report.json
 scan_report.*
 *.log
+*.tgz
