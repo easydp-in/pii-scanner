@@ -38,16 +38,18 @@ if command -v python3 >/dev/null 2>&1; then
   fi
 
   # Ensure easydp-scan is available in INSTALL_DIR (~/.local/bin)
-  CLI_TARGET="$(command -v easydp-scan || python3 -c "import sysconfig, os, shutil; p = shutil.which('easydp-scan') or os.path.join(sysconfig.get_path('scripts'), 'easydp-scan'); print(p if os.path.exists(p) else '')" 2>/dev/null || true)"
-  if [ -n "${CLI_TARGET}" ] && [ -x "${CLI_TARGET}" ]; then
-    ln -sf "${CLI_TARGET}" "${INSTALL_DIR}/${BIN_NAME}"
+  TARGET_FILE="${INSTALL_DIR}/${BIN_NAME}"
+  CLI_TARGET="$(python3 -c "import sysconfig, os; p = os.path.join(sysconfig.get_path('scripts'), 'easydp-scan'); print(p if os.path.exists(p) else '')" 2>/dev/null || true)"
+  rm -f "${TARGET_FILE}"
+  if [ -n "${CLI_TARGET}" ] && [ -x "${CLI_TARGET}" ] && [ "${CLI_TARGET}" != "${TARGET_FILE}" ]; then
+    ln -sf "${CLI_TARGET}" "${TARGET_FILE}"
   else
     PY_BIN="$(command -v python3)"
-    cat << EOF > "${INSTALL_DIR}/${BIN_NAME}"
+    cat << EOF > "${TARGET_FILE}"
 #!/usr/bin/env bash
 exec "${PY_BIN}" -m pii_scanner.cli "\$@"
 EOF
-    chmod +x "${INSTALL_DIR}/${BIN_NAME}"
+    chmod +x "${TARGET_FILE}"
   fi
 else
   echo "=> Downloading pre-compiled standalone binary for ${OS}..."
