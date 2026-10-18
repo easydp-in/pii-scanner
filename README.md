@@ -60,17 +60,32 @@
   - **UPI Virtual Payment Addresses**: Identifies handles (`user@okhdfcbank`, `mobile@paytm`, `name@ybl`).
   - **Email Addresses**: RFC compliant email pattern matching for personal and corporate mailboxes.
 
-### 2. Data Ownership & Governance Metrics
+### 2. Multi-Format Document & Data Source Support
+- **Office Documents & Contracts**:
+  - **Microsoft Word (`.docx`, `.dotx`)**: Native extraction of paragraphs, tables, and headers/footers from Word packages with zero external runtime dependencies.
+  - **OpenDocument (`.odt`, `.ods`)**: Native parsing for LibreOffice / OpenOffice word processing and spreadsheet files.
+  - **Rich Text Format (`.rtf`)**: Scans formatted salary certificates, HR letters, and legacy payroll records.
+- **Digital PDFs (`.pdf`)**:
+  - Extracts text across digital PDF pages (invoices, account statements, tax receipts) using pure-Python `pypdf`.
+- **Spreadsheets & Tabular Data**:
+  - **Excel (`.xlsx`, `.xlsm`)**: Streaming row-by-row inspection via `openpyxl`.
+  - **Delimited Files (`.csv`, `.tsv`)**: High-throughput streaming chunk reader.
+- **Plain Text, Code & Configuration**:
+  - `.txt`, `.log`, `.md`, `.json`, `.xml`, `.sql`, `.yaml`, `.yml`, `.env`.
+- **Live Accounting ERP**:
+  - Tally ERP 9 / TallyPrime live XML connector over local loopback (`127.0.0.1:9000`).
+
+### 3. Data Ownership & Governance Metrics
 - **Types & Quantities Owned**: Surfaces exact counts per PII type and broad categories (*Identity*, *Financial*, *Contact*).
 - **High-Risk Exposure Alerts**: Flags sensitive files located in unprotected directories (`Downloads/`, `Desktop/`, shared network drives).
 - **Retention Staleness Risk**: Identifies files untouched for >1 year and >3 years to prevent unlawful retention under the DPDP Act.
 
-### 3. Reporting Formats
+### 4. Reporting Formats
 - **Interactive HTML Dashboard**: Self-contained, responsive offline report with search box, filter pills, distribution charts, and masked previews.
 - **DPDP JSON Inventory**: Conforms to `@context: "https://easydp.in/schema/v1/pii-inventory.json"` for enterprise data catalogs.
 - **Rich Terminal Summary**: Instant command-line status with EasyDP ASCII banner and colored tables.
 
-### 4. Zero Telemetry & No Automated Data Sharing
+### 5. Zero Telemetry & No Automated Data Sharing
 - **Complete Local Containment**: All scan counts, file inventories, and reports stay 100% on the local computer.
 - **No Background Syncing**: The scanner contains zero background sync agents, analytics beacons, or telemetry.
 - **Air-Gapped Operation**: Fully functional on completely disconnected or air-gapped systems with zero degradation.

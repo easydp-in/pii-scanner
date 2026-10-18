@@ -14,7 +14,11 @@ from pii_scanner.core.models import (
 )
 from pii_scanner.extractors.base import BaseExtractor
 from pii_scanner.extractors.csv_scanner import CSVExtractor
+from pii_scanner.extractors.docx_scanner import DocxExtractor
 from pii_scanner.extractors.excel_scanner import ExcelExtractor
+from pii_scanner.extractors.odt_scanner import ODTExtractor
+from pii_scanner.extractors.pdf_scanner import PDFExtractor
+from pii_scanner.extractors.rtf_scanner import RTFExtractor
 from pii_scanner.extractors.text_scanner import TextExtractor
 
 DEFAULT_IGNORED_DIRS = {
@@ -59,13 +63,22 @@ def get_common_user_directories() -> list[str]:
 
 
 DEFAULT_SUPPORTED_EXTENSIONS = {
+    # Tabular & Spreadsheets
     ".csv": CSVExtractor,
+    ".tsv": CSVExtractor,
     ".xlsx": ExcelExtractor,
     ".xlsm": ExcelExtractor,
+    # Documents
+    ".pdf": PDFExtractor,
+    ".docx": DocxExtractor,
+    ".dotx": DocxExtractor,
+    ".odt": ODTExtractor,
+    ".ods": ODTExtractor,
+    ".rtf": RTFExtractor,
+    # Text, Code & Structured Files
     ".txt": TextExtractor,
     ".log": TextExtractor,
     ".md": TextExtractor,
-    ".tsv": CSVExtractor,
     ".json": TextExtractor,
     ".xml": TextExtractor,
     ".sql": TextExtractor,
