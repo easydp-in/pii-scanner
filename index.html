@@ -114,14 +114,14 @@
       gap: 24px;
       align-items: center;
     }
-    .nav-links a {
+    .nav-links a:not(.btn) {
       color: var(--on-dark-2);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
       transition: color 0.2s;
     }
-    .nav-links a:hover {
+    .nav-links a:not(.btn):hover {
       color: #FFFFFF;
     }
     .btn {
@@ -137,16 +137,18 @@
       transition: all 0.2s ease;
       border: none;
     }
-    .btn-primary {
-      background: var(--gold);
-      color: var(--navy);
-      font-weight: 700;
+    .btn-primary,
+    .nav-links a.btn-primary {
+      background: var(--gold) !important;
+      color: #0A1626 !important;
+      font-weight: 700 !important;
       border: 1px solid var(--gold);
-      box-shadow: 0 4px 14px rgba(212, 169, 69, 0.2);
+      box-shadow: 0 4px 14px rgba(212, 169, 69, 0.25);
     }
-    .btn-primary:hover {
-      background: var(--gold-hover);
-      color: var(--navy);
+    .btn-primary:hover,
+    .nav-links a.btn-primary:hover {
+      background: var(--gold-hover) !important;
+      color: #0A1626 !important;
       transform: translateY(-1px);
     }
     .btn-secondary {
@@ -552,6 +554,7 @@
         <span class="brand-badge">v0.1.0 Open Source</span>
       </a>
       <div class="nav-links">
+        <a href="#how-it-works">How It Works</a>
         <a href="#features">Features</a>
         <a href="#formats">Documents</a>
         <a href="#demo">Live Demo</a>
@@ -707,6 +710,49 @@
     <div class="section-title">100% Offline Architecture</div>
     <div class="section-subtitle">Zero raw data leaves your computer. Scans execute purely on CPU with socket-level air-gapping.</div>
     <img src="EasyDP-Local-PII-Scanner-flow.png" alt="EasyDP 100% Offline Flow" class="arch-img">
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="container" style="padding-top: 40px; padding-bottom: 40px;">
+    <div class="section-title">How It Works</div>
+    <div class="section-subtitle">An air-gapped 5-stage discovery and governance pipeline executing 100% locally on your CPU.</div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 36px;">
+      <div class="card" style="border-top: 3px solid var(--gold);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Stage 1</div>
+        <div class="card-icon">📂</div>
+        <h3>Target Discovery & Routing</h3>
+        <p>Traverses local folders while automatically filtering developer artifacts (<code>.git</code>, <code>node_modules</code>, <code>venv</code>) and system files. Pluggable <code>ExtractorRegistry</code> routes each file by extension.</p>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--gold);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Stage 2</div>
+        <div class="card-icon">⚡</div>
+        <h3>Streaming & Guardrails</h3>
+        <p>Reads CSV, PDF, and logs line-by-line via memory-safe streams. Built-in zip bomb protection (50MB entry / 150MB total) halts malformed archives. Tally connects purely via localhost loopback (127.0.0.1:9000).</p>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--gold);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Stage 3</div>
+        <div class="card-icon">🧮</div>
+        <h3>Statutory Checksums</h3>
+        <p>Eliminates false alarms via exact math: <strong>Verhoeff Dihedral (D<sub>5</sub>)</strong> for Aadhaar, statutory <strong>Mod-36</strong> for GSTIN, PAN entity classification (<code>P</code>, <code>C</code>, <code>F</code>, <code>T</code>, <code>H</code>), and RBI IFSC routing.</p>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--gold);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Stage 4</div>
+        <div class="card-icon">🛡️</div>
+        <h3>Zero-Leak Redaction</h3>
+        <p>Sensitive values are immediately masked into audit-safe strings (<code>XXXX-XXXX-1234</code>, <code>XXXXX1234F</code>) and classified into DPDP inventory categories: <em>Identity</em>, <em>Financial</em>, and <em>Contact</em>.</p>
+      </div>
+
+      <div class="card" style="border-top: 3px solid var(--gold);">
+        <div style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Stage 5</div>
+        <div class="card-icon">📊</div>
+        <h3>Governance & Reporting</h3>
+        <p>Flags retention staleness (&gt;1y and &gt;3y) under DPDP Section 8(7), identifies high-risk paths (<code>Downloads/</code>, <code>Desktop/</code>), and outputs an interactive HTML report and JSON inventory.</p>
+      </div>
+    </div>
   </section>
 
   <!-- Features Grid -->
