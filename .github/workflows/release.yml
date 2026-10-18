@@ -45,6 +45,11 @@ jobs:
             --clean \
             src/pii_scanner/cli.py
 
+      - name: Ad-Hoc Sign Binary (macOS Apple Silicon & Intel)
+        if: runner.os == 'macOS'
+        run: |
+          codesign --force --deep -s - dist/${{ matrix.artifact_name }}
+
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
         with:
