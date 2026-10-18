@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EasyDP Local PII Scanner — 100% Offline DPDP Compliance Scanner</title>
+  <meta name="description" content="Enterprise-grade, 100% offline local PII & B2B scanner for Indian DPDP Act 2023 compliance. Discovers personal data across Word, PDF, Excel, Tally ERP 9 / Prime, and local disks with zero cloud uploads.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+  <style>
+    :root {
+      --bg: #0B0F19;
+      --card-bg: #151C2C;
+      --card-border: #242F48;
+      --primary: #3B82F6;
+      --primary-hover: #2563EB;
+      --accent: #10B981;
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --code-bg: #030712;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-family);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Container & Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navigation */
+    nav {
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 70px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #60A5FA, #3B82F6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .brand-badge {
+      background: #1E293B;
+      color: #93C5FD;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid #3B82F6;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: var(--text);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: #2563EB;
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+    .btn-primary:hover {
+      background: #1D4ED8;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: #1E293B;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+    .btn-secondary:hover {
+      background: #334155;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 50px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #93C5FD, #3B82F6, #10B981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: 19px;
+      color: var(--text-muted);
+      max-width: 760px;
+      margin: 0 auto 36px;
+      line-height: 1.5;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    /* Terminal Box */
+    .terminal-wrapper {
+      max-width: 820px;
+      margin: 0 auto 60px;
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      text-align: left;
+    }
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: #111827;
+      border-bottom: 1px solid #1F2937;
+    }
+    .terminal-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #EF4444; }
+    .dot-yellow { background: #F59E0B; }
+    .dot-green { background: #10B981; }
+    .terminal-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: #1F2937;
+      color: #60A5FA;
+    }
+    .terminal-body {
+      padding: 20px 24px;
+      font-family: "SF Mono", Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13.5px;
+      color: #E2E8F0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copy-btn {
+      background: #1F2937;
+      border: 1px solid #374151;
+      color: #9CA3AF;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background: #374151;
+      color: #F3F4F6;
+    }
+
+    /* Section Headers */
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+    }
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 650px;
+      margin: 0 auto 48px;
+    }
+
+    /* Feature Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+    .card:hover {
+      border-color: #3B82F6;
+    }
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .card h3 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .card p {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      line-height: 1.6;
+    }
+    .card ul {
+      margin-top: 12px;
+      padding-left: 18px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+    .card li { margin-bottom: 6px; }
+
+    /* Interactive Live Demo */
+    .demo-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 36px;
+      margin-bottom: 80px;
+    }
+    .demo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .demo-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: #1E293B;
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pill.active {
+      background: #2563EB;
+      color: #FFFFFF;
+      border-color: #2563EB;
+    }
+    .demo-search {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: #0F172A;
+      color: #FFFFFF;
+      font-size: 13px;
+      width: 240px;
+    }
+    .demo-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+    .demo-table th {
+      background: #1E293B;
+      color: #94A3B8;
+      padding: 12px 16px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .demo-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(36, 47, 72, 0.6);
+      color: #E2E8F0;
+    }
+    .chip {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin: 2px;
+    }
+    .chip-aadhaar { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .chip-pan { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .chip-gstin { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .chip-phone { background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .risk-badge {
+      background: rgba(239, 68, 68, 0.15);
+      color: #F87171;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Architecture diagram */
+    .arch-container {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    .arch-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Comparison Table */
+    .table-container {
+      overflow-x: auto;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-bottom: 80px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+    .data-table th {
+      background: #111827;
+      padding: 14px 18px;
+      font-weight: 600;
+      color: #94A3B8;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .data-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--card-border);
+      color: #E2E8F0;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 48px 0;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      text-align: center;
+    }
+    footer a {
+      color: #60A5FA;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="https://easydp.in" class="brand">
+        <span class="brand-logo">EasyDP</span>
+        <span class="brand-badge">v0.1.0 Open Source</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#formats">Documents</a>
+        <a href="#demo">Live Demo</a>
+        <a href="#architecture">Architecture</a>
+        <a href="https://github.com/easydp-in/pii-scanner" target="_blank">GitHub</a>
+        <a href="https://github.com/easydp-in/pii-scanner/releases" class="btn btn-primary">Download Binaries</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span>🔒 100% Offline • Zero Telemetry • Indian DPDP Act 2023 Compliance</span>
+      </div>
+      <h1>Scan Local PCs & Accounting Systems for PII <span>With Zero Cloud Uploads</span></h1>
+      <p class="hero-subtitle">
+        The air-gapped, open-source compliance scanner engineered for Indian enterprises, CAs, and SMBs. Audits Word, PDF, Excel, CSV, Tally ERP 9 / Prime, and local disks with statutory Verhoeff and Mod-36 checksums.
+      </p>
+      <div class="hero-actions">
+        <a href="https://github.com/easydp-in/pii-scanner/releases" class="btn btn-primary">Download Standalone .EXE / Mac</a>
+        <a href="https://github.com/easydp-in/pii-scanner" class="btn btn-secondary">Star on GitHub ⭐</a>
+      </div>
+
+      <!-- Copyable Terminal Box -->
+      <div class="terminal-wrapper">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <div class="terminal-tabs">
+            <button class="tab-btn active" onclick="switchTab('sh')">Linux / macOS</button>
+            <button class="tab-btn" onclick="switchTab('pwsh')">Windows (PowerShell)</button>
+            <button class="tab-btn" onclick="switchTab('pip')">Python (Pip)</button>
+            <button class="tab-btn" onclick="switchTab('npm')">Node (NPX)</button>
+            <button class="tab-btn" onclick="switchTab('llm')">🤖 AI Prompt</button>
+          </div>
+        </div>
+        <div class="terminal-body">
+          <code id="term-cmd">curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash</code>
+          <button class="copy-btn" onclick="copyCommand()">
+            <span id="copy-text">Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Demo Section -->
+  <section id="demo" class="container">
+    <div class="section-title">Interactive Audit Preview</div>
+    <div class="section-subtitle">Test how EasyDP parses local files and categorizes PII right on your device.</div>
+
+    <div class="demo-section">
+      <div class="demo-header">
+        <div class="demo-pills">
+          <button class="pill active" onclick="filterDemo('all')">All Files (4)</button>
+          <button class="pill" onclick="filterDemo('risk')">⚠️ High-Risk Folders</button>
+          <button class="pill" onclick="filterDemo('aadhaar')">Aadhaar (Verhoeff)</button>
+          <button class="pill" onclick="filterDemo('pan')">PAN (Entity Class)</button>
+          <button class="pill" onclick="filterDemo('b2b')">B2B GSTIN</button>
+        </div>
+        <input type="text" id="demo-search-input" class="demo-search" placeholder="Search files or PII..." onkeyup="searchDemo()">
+      </div>
+
+      <table class="demo-table">
+        <thead>
+          <tr>
+            <th>File Name</th>
+            <th>Type</th>
+            <th>Location Risk</th>
+            <th>Discovered PII (Masked)</th>
+            <th>PII Count</th>
+          </tr>
+        </thead>
+        <tbody id="demo-rows">
+          <tr data-cat="aadhaar pan b2b">
+            <td><strong>vendor_agreement.docx</strong></td>
+            <td>Word Document</td>
+            <td><code>Documents/Contracts</code></td>
+            <td>
+              <span class="chip chip-aadhaar">Aadhaar: XXXX-XXXX-2562</span>
+              <span class="chip chip-pan">PAN: XXXXX1234F (P)</span>
+              <span class="chip chip-gstin">GSTIN: 27XXXXX9603R1ZN</span>
+            </td>
+            <td><strong>3</strong></td>
+          </tr>
+          <tr data-cat="risk aadhaar pan">
+            <td><strong>customers_sample.csv</strong></td>
+            <td>Spreadsheet</td>
+            <td><span class="risk-badge">Downloads (Exposed)</span></td>
+            <td>
+              <span class="chip chip-phone">Mobile: +91-XXXXX-43210</span>
+              <span class="chip chip-pan">PAN: XXXXX9876C (Company)</span>
+              <span class="chip chip-aadhaar">Aadhaar: XXXX-XXXX-9812</span>
+            </td>
+            <td><strong>17</strong></td>
+          </tr>
+          <tr data-cat="pan">
+            <td><strong>salary_certificate.rtf</strong></td>
+            <td>Rich Text Format</td>
+            <td><code>Payroll/Certificates</code></td>
+            <td>
+              <span class="chip chip-pan">PAN: XXXXX5678K (P)</span>
+              <span class="chip chip-phone">Mobile: +91-XXXXX-43210</span>
+            </td>
+            <td><strong>2</strong></td>
+          </tr>
+          <tr data-cat="b2b">
+            <td><strong>tally_debtors_export.xml</strong></td>
+            <td>Tally ERP Port 9000</td>
+            <td><code>Local ERP Loopback</code></td>
+            <td>
+              <span class="chip chip-gstin">GSTIN: 29XXXXX4321A1Z8</span>
+              <span class="chip chip-pan">PAN: XXXXX3456F (Firm)</span>
+            </td>
+            <td><strong>8</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Architecture Section -->
+  <section id="architecture" class="container arch-container">
+    <div class="section-title">100% Offline Architecture</div>
+    <div class="section-subtitle">Zero raw data leaves your computer. Scans execute purely on CPU with socket-level air-gapping.</div>
+    <img src="EasyDP-Local-PII-Scanner-flow.png" alt="EasyDP 100% Offline Flow" class="arch-img">
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="container">
+    <div class="section-title">Built for Indian DPDP Act 2023 Compliance</div>
+    <div class="section-subtitle">Eliminate audit anxiety and inventory your organization's personal data footprint.</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">🏛️</div>
+        <h3>B2B & Commercial Coverage</h3>
+        <p>Full support for Indian B2B workflows and commercial taxation:</p>
+        <ul>
+          <li><strong>GSTIN</strong>: Mod-36 statutory check digit verification.</li>
+          <li><strong>Entity-Classified PAN</strong>: Categorizes companies (<code>C</code>), partnership firms (<code>F</code>), trusts (<code>T</code>), and sole proprietors (<code>P</code>).</li>
+          <li><strong>Bank IFSC Codes</strong>: RBI compliant routing verification.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🔐</div>
+        <h3>B2C Statutory Checksums</h3>
+        <p>Mathematical checksums eliminate false alarms on random numbers:</p>
+        <ul>
+          <li><strong>Aadhaar</strong>: Verhoeff Dihedral ($D_5$) check digit validation (rejects invalid prefixes starting with 0 or 1).</li>
+          <li><strong>Indian Phone Numbers</strong>: National Numbering Plan with strict boundary isolation.</li>
+          <li><strong>UPI VPA Handles</strong>: Detects handles across PhonePe, Google Pay, and Paytm.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Tally ERP 9 & Prime Connector</h3>
+        <p>Direct live audit of accounting databases without manual CSV exports:</p>
+        <ul>
+          <li>Connects over local port 9000 loopback (<code>127.0.0.1</code>).</li>
+          <li>Audits <strong>Sundry Debtors</strong> and <strong>Sundry Creditors</strong> ledgers.</li>
+          <li>Identifies personal PANs and phone numbers in vendor accounts.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Formats Table -->
+  <section id="formats" class="container">
+    <div class="section-title">Supported Document & File Formats</div>
+    <div class="section-subtitle">Comprehensive local parsing for office files, digital PDFs, spreadsheets, and databases.</div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Format Category</th>
+            <th>File Extensions</th>
+            <th>Processing Engine</th>
+            <th>Audit Scope</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Word Documents</strong></td>
+            <td><code>.docx</code>, <code>.dotx</code></td>
+            <td>Native XML Streamer</td>
+            <td>Paragraphs, tables, and headers/footers in employment contracts, vendor NDAs, resumes</td>
+          </tr>
+          <tr>
+            <td><strong>Digital PDFs</strong></td>
+            <td><code>.pdf</code></td>
+            <td>Pure-Python <code>pypdf</code></td>
+            <td>Full text across all pages in bank statements, digital invoices, salary slips, and receipts</td>
+          </tr>
+          <tr>
+            <td><strong>OpenDocument</strong></td>
+            <td><code>.odt</code>, <code>.ods</code></td>
+            <td>Native XML Streamer</td>
+            <td>LibreOffice / OpenOffice word processing documents and financial spreadsheets</td>
+          </tr>
+          <tr>
+            <td><strong>Rich Text Format</strong></td>
+            <td><code>.rtf</code></td>
+            <td>RTF Control Stripper</td>
+            <td>Confidential salary certificates, HR promotion letters, legacy payroll dumps</td>
+          </tr>
+          <tr>
+            <td><strong>Spreadsheets</strong></td>
+            <td><code>.xlsx</code>, <code>.xlsm</code></td>
+            <td>Streaming <code>openpyxl</code></td>
+            <td>Row-by-row, column-by-column cell inspection across all workbook sheets</td>
+          </tr>
+          <tr>
+            <td><strong>Delimited Files</strong></td>
+            <td><code>.csv</code>, <code>.tsv</code></td>
+            <td>High-Throughput CSV</td>
+            <td>Customer databases, CRM exports, e-commerce transaction logs</td>
+          </tr>
+          <tr>
+            <td><strong>Plain Text & Code</strong></td>
+            <td><code>.txt</code>, <code>.log</code>, <code>.json</code>, <code>.xml</code>, <code>.sql</code></td>
+            <td>Chunked UTF-8 Reader</td>
+            <td>System server logs, application dumps, configuration files, SQL database scripts</td>
+          </tr>
+          <tr>
+            <td><strong>Accounting ERP</strong></td>
+            <td>Port 9000 XML</td>
+            <td>Local Loopback XML</td>
+            <td>Live Tally ERP 9 / TallyPrime party ledgers and vendor GSTIN/PAN masters</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="margin-bottom: 8px;">
+        <strong>EasyDP Local PII Scanner</strong> — Powered by <a href="https://easydp.in" target="_blank">EasyDP.in</a>
+      </p>
+      <p style="font-size: 12.5px; color: #64748B;">
+        Licensed under Apache-2.0. Built strictly for local information governance under India's Digital Personal Data Protection Act, 2023.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const commands = {
+      sh: "curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash",
+      pwsh: "irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex",
+      pip: "pip install git+https://github.com/easydp-in/pii-scanner.git",
+      npm: "npx @easydp/pii-scanner scan .",
+      llm: "Please install easydp-scan on this machine and audit current directory for DPDP PII with zero egress."
+    };
+
+    let activeTab = 'sh';
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('term-cmd').textContent = commands[tab];
+      document.getElementById('copy-text').textContent = 'Copy';
+    }
+
+    function copyCommand() {
+      navigator.clipboard.writeText(commands[activeTab]);
+      const btnText = document.getElementById('copy-text');
+      btnText.textContent = 'Copied! ✓';
+      setTimeout(() => { btnText.textContent = 'Copy'; }, 2000);
+    }
+
+    function filterDemo(category) {
+      document.querySelectorAll('.demo-pills .pill').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      const rows = document.querySelectorAll('#demo-rows tr');
+      rows.forEach(row => {
+        if (category === 'all' || (category === 'risk' && row.innerHTML.includes('Exposed')) || row.getAttribute('data-cat').includes(category)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    function searchDemo() {
+      const q = document.getElementById('demo-search-input').value.toLowerCase();
+      const rows = document.querySelectorAll('#demo-rows tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
