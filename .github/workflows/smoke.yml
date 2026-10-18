@@ -1,0 +1,38 @@
+name: Smoke Tests
+
+on:
+  workflow_run:
+    workflows: ["Release & Publish Artifacts"]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    name: Clean Runner Smoke Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Smoke Test on Unix Runner
+        if: matrix.os != 'windows-latest'
+        run: |
+          pip install .
+          easydp-scan --version
+          easydp-scan scan ./sample_data/ --format html,json,cli --output-dir ./smoke_out
+          test -f ./smoke_out/scan_report.html
+          test -f ./smoke_out/scan_report.json
+
+      - name: Smoke Test on Windows Runner
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          pip install .
+          easydp-scan --version
+          easydp-scan scan ./sample_data/ --format html,json,cli --output-dir ./smoke_out
+          if (-not (Test-Path ./smoke_out/scan_report.html)) { exit 1 }
+          if (-not (Test-Path ./smoke_out/scan_report.json)) { exit 1 }

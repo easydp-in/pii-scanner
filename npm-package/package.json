@@ -1,0 +1,30 @@
+{
+  "name": "@easydp/pii-scanner",
+  "version": "0.1.0",
+  "description": "Offline-first, enterprise-grade local PII scanner for Indian DPDP Act compliance by EasyDP.in",
+  "bin": {
+    "easydp-scan": "./bin/easydp-scan.js",
+    "pii-scanner": "./bin/easydp-scan.js"
+  },
+  "scripts": {
+    "test": "node bin/easydp-scan.js --help"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easydp-in/pii-scanner.git"
+  },
+  "keywords": [
+    "pii",
+    "dpdp",
+    "privacy",
+    "scanner",
+    "compliance",
+    "aadhaar",
+    "pan",
+    "gstin",
+    "india"
+  ],
+  "author": "EasyDP <support@easydp.in> (https://easydp.in)",
+  "license": "Apache-2.0",
+  "homepage": "https://easydp.in"
+}

@@ -1,0 +1,9 @@
+Quarterly Engineering Review — Q4
+
+Discussion Topics:
+1. Migration of internal services to isolated offline environments.
+2. Optimization of database query indexes and caching layers.
+3. Review of open source licenses and contributor agreements.
+4. Infrastructure capacity planning for next fiscal year.
+
+No personal data or customer records are stored in this document.
