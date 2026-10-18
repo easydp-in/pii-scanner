@@ -190,7 +190,7 @@ def print_completion_banner(
     cta_content = (
         "[bold white]Ready to automate DPDP compliance, RoPA management & continuous data discovery?[/bold white]\n\n"
         "  🚀 [bold cyan]Sign up for the complete EasyDP Governance Platform:[/bold cyan]\n"
-        "     [bold underline green][link=https://easydp.in]https://easydp.in[/link][/bold underline green]  [dim](Free Cloud & On-Premises Trials)[/dim]\n\n"
+        "     [bold underline green][link=https://easydp.in]https://easydp.in[/link][/bold underline green]\n\n"
         "  [dim]• Automated Data Mapping & RoPA (Section 8)\n"
         "  • Continuous Database, Cloud & Endpoint Scanners\n"
         "  • Statutory DPDP Notice & Grievance Redressal[/dim]"
