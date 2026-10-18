@@ -58,8 +58,10 @@
 - **B2C Personal Identifiers**:
   - **Aadhaar Numbers**: Validates the 12th check digit using the **Verhoeff dihedral group algorithm ($D_5$)**. Enforces UIDAI constraints (numbers cannot begin with `0` or `1`).
   - **Indian Mobile Numbers**: Enforces National Numbering Plan (+91 / 0 / 6–9) with digit-boundary isolation, eliminating false substring matches on timestamps or invoice serials.
-  - **UPI Virtual Payment Addresses**: Identifies handles (`user@okhdfcbank`, `mobile@paytm`, `name@ybl`).
+  - **UPI Virtual Payment Addresses**: Identifies handles (`user@okhdfcbank`, `mobile@paytm`, `name@ybl`) with negative lookahead avoiding email confusion.
   - **Email Addresses**: RFC compliant email pattern matching for personal and corporate mailboxes.
+  - **Person Names**: Identifies full names with salutations (`Mr.`, `Dr.`, `Shri`, etc.), labeled prefixes (`Name:`, `Customer Name:`), and tabular columns.
+  - **Postal Addresses & Indian PIN Codes**: Recognizes 6-digit Indian PIN codes (`[1-9][0-9]{5}`) and structured physical postal address blocks.
 
 #### Supported PII & Statutory Checksum Matrix
 
@@ -72,6 +74,9 @@
 | **UPI VPA Handle** | Financial / Payment | B2C & B2B | Payment handles (`user@okhdfcbank`, `mobile@paytm`, `merchant@ybl`, etc.) | `r***a@okhdfcbank` |
 | **Indian Mobile** | Contact | B2C & B2B | National Numbering Plan (+91/0/6–9) with digit-boundary isolation | `+91-XXXXX-43210` |
 | **Email Address** | Contact | B2C & B2B | RFC-5322 pattern matching for personal and corporate mailboxes | `r***a@example.com` |
+| **Person Name** | Identity | B2C & B2B | Salutation & labeled entity detection (`Mr.`, `Dr.`, `Shri`, form labels) + tabular columns | `R***h K***r` |
+| **Postal Address** | Contact / Physical | B2C & B2B | Address blocks, street/locality identifiers, apartment/plot numbers | `Plot ***, Sector 14, ...` |
+| **Indian PIN Code** | Location / Postal | B2C & B2B | 6-digit Indian postal circles (1–9 zone constraints) + contextual verification | `560***` |
 
 ### 2. Multi-Format Document & Data Source Support
 

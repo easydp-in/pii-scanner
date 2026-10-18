@@ -18,19 +18,23 @@ class PIIType(str, Enum):
 
     AADHAAR = "Aadhaar Number"
     PAN = "PAN Card"
+    NAME = "Person Name"
     GSTIN = "GSTIN (Tax ID)"
     IFSC = "Bank IFSC Code"
     UPI = "UPI VPA Handle"
     PHONE = "Indian Mobile Number"
     EMAIL = "Email Address"
+    ADDRESS = "Postal Address"
+    PINCODE = "Indian PIN Code"
 
     @property
     def category(self) -> PIICategory:
-        if self in (PIIType.AADHAAR, PIIType.PAN):
+        if self in (PIIType.AADHAAR, PIIType.PAN, PIIType.NAME):
             return PIICategory.IDENTITY
         if self in (PIIType.GSTIN, PIIType.IFSC, PIIType.UPI):
             return PIICategory.FINANCIAL
         return PIICategory.CONTACT
+
 
 
 # Precomputed O(1) lookups from PII type string value to PIICategory / category name

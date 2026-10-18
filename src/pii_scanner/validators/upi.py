@@ -2,24 +2,33 @@
 
 import re
 
-# Common UPI handles and generic VPA pattern
-UPI_REGEX = re.compile(r"\b([a-zA-Z0-9.\-_]{2,50})@([a-zA-Z0-9]{2,30})\b")
+# UPI regex with negative lookahead to prevent matching standard email addresses
+UPI_REGEX = re.compile(r"\b([a-zA-Z0-9.\-_]{2,50})@([a-zA-Z0-9]{2,30})(?!\.[a-zA-Z0-9]{2,})\b")
 
-# Common banks / PSP handles in India
+# NPCI certified Banks and PSP handles in India
 COMMON_UPI_HANDLES = {
-    "okaxis",
-    "okhdfcbank",
-    "okicici",
-    "oksbi",
+    # Google Pay
+    "okaxis", "okhdfcbank", "okicici", "oksbi",
+    # PhonePe
+    "ybl", "ibl", "axl",
+    # Paytm
     "paytm",
-    "ybl",
-    "ibl",
+    # BHIM / NPCI
     "upi",
-    "axl",
-    "apl",
-    "barodampay",
-    "cnrb",
-    "pnb",
+    # Major Indian Banks & Neobanks
+    "barodampay", "cnrb", "pnb", "boi", "federal", "indus", "kotak",
+    "idfcbank", "aubank", "airtel", "jio", "icici", "sbi", "hdfcbank",
+    "postbank", "axisbank", "unionbank", "freecharge", "mobikwik",
+    "amazonpay", "cred", "jupiteraxis", "slice", "superyes", "fifederal",
+    "naviaxis", "tapicici", "timecosmos", "allbank", "syndicate", "canara",
+    "centralbank", "corp", "dbs", "denabank", "equitas", "fbl", "hsbc",
+    "idbi", "indianbank", "iob", "kbl", "kvb", "lvb", "obc", "psb",
+    "sc", "sib", "tmb", "uco", "vijayabank", "yesbank",
+}
+
+EMAIL_TLDS = {
+    "com", "org", "net", "edu", "gov", "io", "in", "co", "ai", "app",
+    "dev", "me", "xyz", "info", "biz", "live", "tech", "online", "site",
 }
 
 
@@ -34,12 +43,24 @@ class UPIValidator:
         if not match:
             return False
 
-        # Avoid matching standard emails as UPI VPAs
         handle = match.group(2)
-        if handle in {"com", "org", "net", "edu", "gov", "io", "in", "co"}:
+        if handle in EMAIL_TLDS:
             return False
 
-        return True
+        # If it's a known NPCI PSP handle
+        if handle in COMMON_UPI_HANDLES:
+            return True
+
+        # If handle contains banking or payment keywords
+        if any(k in handle for k in ("bank", "pay", "upi")) or handle.startswith("ok"):
+            return True
+
+        # If username is an Indian 10-digit mobile number (e.g. 9876543210@customvpa)
+        username = match.group(1)
+        if re.fullmatch(r"[6-9]\d{9}", username):
+            return True
+
+        return False
 
     def mask(self, value: str) -> str:
         """Mask username in VPA: j***e@okhdfcbank."""

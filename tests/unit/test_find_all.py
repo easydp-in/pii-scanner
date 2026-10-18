@@ -65,3 +65,19 @@ def test_find_all_in_text() -> None:
     text_email = "Email queries to info@easydp.in or support@company.co.in."
     findings_email = email_val.find_all(text_email)
     assert len(findings_email) == 2
+
+    # 8. Person Names
+    from pii_scanner.validators.person_name import PersonNameValidator
+    name_val = PersonNameValidator()
+    text_name = "Chief Guest Mr. Vikram Sarabhai and Candidate Name: Priya Sharma attended."
+    findings_name = name_val.find_all(text_name)
+    assert len(findings_name) == 2
+
+    # 9. Address and PIN Codes
+    from pii_scanner.validators.address import AddressValidator
+    addr_val = AddressValidator()
+    text_addr = "Office Address: Plot 42, Sector 14, Gurugram with PIN Code: 122001 and Bengaluru 560034."
+    findings_addr = addr_val.find_all_addresses(text_addr)
+    assert len(findings_addr) >= 1
+    findings_pins = addr_val.find_all_pincodes(text_addr)
+    assert len(findings_pins) == 2
