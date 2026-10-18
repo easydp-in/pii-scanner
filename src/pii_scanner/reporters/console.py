@@ -90,9 +90,7 @@ class ConsoleReporter:
         # 4. Sensitive Files Table
         sensitive_results = [r for r in summary.results if r.is_sensitive]
         if sensitive_results:
-            files_table = Table(
-                title="Sensitive Files & Findings Details", border_style="magenta"
-            )
+            files_table = Table(title="Sensitive Files & Findings Details", border_style="magenta")
             files_table.add_column("File Name", style="bold")
             files_table.add_column("PII Count", justify="right")
             files_table.add_column("Findings Breakdown")
