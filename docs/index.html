@@ -52,6 +52,7 @@
     }
 
     /* Navigation */
+    /* Navigation */
     nav {
       border-bottom: 1px solid var(--navy-line);
       background: rgba(16, 35, 56, 0.94);
@@ -59,12 +60,21 @@
       position: sticky;
       top: 0;
       z-index: 50;
+      width: 100%;
+    }
+    .nav-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 24px;
+      width: 100%;
+      box-sizing: border-box;
     }
     .nav-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
       height: 72px;
+      gap: 16px;
     }
     .brand {
       display: flex;
@@ -72,6 +82,8 @@
       gap: 12px;
       text-decoration: none;
       color: var(--on-dark);
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     .brand-logo-svg {
       display: block;
@@ -83,6 +95,7 @@
       display: flex;
       flex-direction: column;
       line-height: 1.1;
+      flex-shrink: 0;
     }
     .brand-wordmark {
       font-family: 'Geist', var(--font-body);
@@ -90,6 +103,7 @@
       font-weight: 700;
       color: #FFFFFF;
       letter-spacing: -0.4px;
+      white-space: nowrap;
     }
     .brand-wordmark .gold {
       color: var(--gold);
@@ -99,8 +113,11 @@
       color: var(--on-dark-3);
       letter-spacing: 0.02em;
       font-weight: 500;
+      white-space: nowrap;
     }
     .brand-badge {
+      display: inline-flex;
+      align-items: center;
       background: rgba(212, 169, 69, 0.1);
       color: var(--gold);
       font-size: 11px;
@@ -108,18 +125,25 @@
       padding: 3px 8px;
       border-radius: 12px;
       border: 1px solid var(--gold);
+      white-space: nowrap;
+      flex-shrink: 0;
+      line-height: 1.2;
     }
     .nav-links {
       display: flex;
-      gap: 24px;
+      gap: 20px;
       align-items: center;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .nav-links a:not(.btn) {
       color: var(--on-dark-2);
       text-decoration: none;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 500;
       transition: color 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .nav-links a:not(.btn):hover {
       color: #FFFFFF;
@@ -127,15 +151,18 @@
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       padding: 9px 18px;
       border-radius: 8px;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 600;
       text-decoration: none;
       cursor: pointer;
       transition: all 0.2s ease;
       border: none;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .btn-primary,
     .nav-links a.btn-primary {
@@ -532,13 +559,71 @@
     footer a:hover {
       text-decoration: underline;
     }
+    /* Responsive Breakpoints & Navigation */
+    @media (max-width: 1200px) {
+      .nav-links {
+        gap: 14px;
+      }
+      .nav-links a:not(.btn) {
+        font-size: 13px;
+      }
+      .nav-extra {
+        display: none !important;
+      }
+    }
+    @media (max-width: 992px) {
+      .brand-tagline {
+        display: none;
+      }
+      .nav-secondary {
+        display: none !important;
+      }
+      .hero h1 {
+        font-size: 42px !important;
+      }
+    }
+    @media (max-width: 768px) {
+      .nav-inner {
+        height: 64px;
+      }
+      .nav-container {
+        padding: 0 16px;
+      }
+      .brand-badge {
+        display: none !important;
+      }
+      .nav-links a:not(.btn) {
+        display: none !important;
+      }
+      .btn {
+        padding: 8px 14px;
+        font-size: 13px;
+      }
+      .hero {
+        padding: 50px 0 40px;
+      }
+      .hero h1 {
+        font-size: 30px !important;
+      }
+      .hero-subtitle {
+        font-size: 16px !important;
+      }
+      .section-title {
+        font-size: 26px !important;
+      }
+      .terminal-body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- Navigation -->
   <nav>
-    <div class="container nav-inner">
+    <div class="nav-container nav-inner">
       <a href="https://easydp.in" class="brand">
         <svg class="brand-logo-svg" viewBox="788 680 442 538" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="#FFFFFF" d="M 1008.28 685.028 C 1018.41 690.524 1035.03 703.143 1046.2 710.048 C 1076.83 729.232 1109.68 744.621 1144.03 755.874 C 1157.71 760.522 1171.7 764.205 1185.9 766.896 C 1196.43 768.943 1207.05 770.559 1217.42 773.265 C 1223.95 774.674 1223.94 786.419 1224.25 792.065 C 1229.24 882.182 1220.1 977.57 1176 1057.86 C 1146.93 1110.77 1106.27 1152.82 1055.29 1184.83 C 1041.28 1193.63 1024.34 1203.56 1008.98 1209.21 C 992.194 1203.35 978.148 1195.11 963.114 1185.71 C 908.881 1151.79 865.755 1106.42 836.424 1049.33 C 832.552 1041.8 826.866 1031.48 829.611 1023.31 C 831.705 1020.93 839.376 1017.3 841.325 1019.76 C 850.306 1031.1 856.141 1045.9 863.512 1058.65 C 867.754 1065.93 872.306 1073.04 877.155 1079.94 C 909.686 1126.69 957.374 1165.26 1009 1189.25 C 1055.8 1164.72 1087.68 1142.69 1123.23 1102 C 1195.1 1019.77 1213.88 895.883 1205.41 789.704 C 1194.29 786.956 1181.34 785.306 1168.91 782.212 C 1124.35 771.4 1081.7 753.828 1042.45 730.107 C 1033.26 724.505 1016.88 714.701 1009.46 707.454 C 994.459 715.485 976.56 729.294 960.148 738.501 C 923.26 758.908 883.707 774.073 842.632 783.558 C 831.782 786.141 821.894 787.474 811.229 789.811 L 810.973 796.615 C 809.868 827.179 809.258 941.883 829.13 961.755 C 839.458 972.082 900.755 968.598 917.994 968.7 C 917.982 974.73 917.859 981.159 918.004 987.157 C 893.245 986.392 864.745 990.353 840.566 986.339 C 827.918 984.239 816.728 978.105 809.416 967.385 C 792.936 943.225 787.32 811.172 794.09 779.38 C 794.421 777.826 795.092 775.269 796.43 774.297 C 798.24 772.983 855.717 761.37 864.993 758.596 C 904.206 746.868 941.913 728.478 976.424 706.619 C 987.288 699.737 997.523 692.036 1008.28 685.028 z"/>
@@ -556,11 +641,11 @@
       <div class="nav-links">
         <a href="#how-it-works">How It Works</a>
         <a href="#features">Features</a>
-        <a href="#formats">Documents</a>
-        <a href="#demo">Live Demo</a>
-        <a href="#architecture">Architecture</a>
+        <a href="#formats" class="nav-secondary">Documents</a>
+        <a href="#demo" class="nav-secondary">Live Demo</a>
+        <a href="#architecture" class="nav-extra">Architecture</a>
         <a href="https://github.com/easydp-in/pii-scanner" target="_blank">GitHub</a>
-        <a href="https://github.com/easydp-in/pii-scanner/issues/new" target="_blank" style="color: var(--error-dark);">🐞 Report Error</a>
+        <a href="https://github.com/easydp-in/pii-scanner/issues/new" target="_blank" class="nav-extra" style="color: var(--error-dark);">🐞 Report Error</a>
         <a href="https://github.com/easydp-in/pii-scanner/releases" class="btn btn-primary">Download Binaries</a>
       </div>
     </div>
