@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <strong>Enterprise-grade, 100% offline local PII & B2B scanner for Indian DPDP Act compliance.</strong><br>
+  <strong>Built for SMBs & Growing Businesses • 100% offline local PII & B2B scanner for Indian DPDP Act compliance.</strong><br>
   Discover and inventory personal data across local PC storage, shared folders, and Tally ERP with zero cloud uploads.
 </p>
 
@@ -100,7 +100,7 @@
 
 ### 4. Reporting Formats
 - **Interactive HTML Dashboard**: Self-contained, responsive offline report with search box, filter pills, distribution charts, and masked previews.
-- **DPDP JSON Inventory**: Conforms to `@context: "https://easydp.in/schema/v1/pii-inventory.json"` for enterprise data catalogs.
+- **DPDP JSON Inventory**: Conforms to `@context: "https://easydp.in/schema/v1/pii-inventory.json"` for data catalogs and compliance exports.
 - **Rich Terminal Summary**: Instant command-line status with EasyDP ASCII banner and colored tables.
 
 ### 5. Zero Telemetry & No Automated Data Sharing
@@ -114,7 +114,7 @@
 
 ## How It Works: The Hybrid Architecture (MaskFlow Rules + Edge Model)
 
-Most traditional PII scanners fail on Indian enterprise data because they use one of two extremes:
+Most traditional PII scanners fail on Indian business data because they use one of two extremes:
 1. **Pure Regex Tools**: High false-positive rates on random 12-digit invoice numbers, timestamps, and order codes, with complete inability to identify contextual Indian names.
 2. **Heavy Cloud NLP APIs**: Require uploading sensitive employee and customer files to third-party cloud servers, directly violating the data minimization and security mandates of India's DPDP Act, 2023.
 
@@ -172,7 +172,7 @@ flowchart TD
 
 ### 5. Offline Reporting & Optional Zero-Knowledge Sync
 - **Local Artifacts**: Outputs self-contained interactive HTML dashboards (`reports/scan_report.html`) and structured JSON inventory catalogs (`reports/scan_report.json`).
-- **Optional Zero-Knowledge Cloud Sync**: If (and only if) the operator consents, sends aggregate metrics (data types, counts, and category summaries) to the EasyDP platform to populate the enterprise Data Inventory (DIM-01). File contents and raw customer identities are **never** transmitted.
+- **Optional Zero-Knowledge Cloud Sync**: If (and only if) the operator consents, sends aggregate metrics (data types, counts, and category summaries) to the EasyDP platform to populate the Data Inventory (DIM-01). File contents and raw customer identities are **never** transmitted.
 
 ---
 
@@ -319,7 +319,7 @@ When executed from the command line, the scanner renders an EasyDP branded ASCII
                  |___/   Local PII Scanner
 
 EasyDP Local PII Scanner
-Enterprise-grade, 100% offline DPDP compliance scanner | https://easydp.in
+Built for SMBs & Growing Businesses | 100% offline DPDP scanner | https://easydp.in
 
 +------------------------------------------------------------------------------+
 | [!] LEGAL & COMPLIANCE DISCLAIMER                                            |
@@ -374,7 +374,7 @@ The HTML dashboard is **100% self-contained** (inline CSS and zero external Java
 - **Offline Sharing**: Can be emailed, archived, or opened in any modern browser without an internet connection.
 
 ### 3. DPDP JSON Data Inventory Schema (`scan_report.json`)
-Conforms to `@context: "https://easydp.in/schema/v1/pii-inventory.json"` for programmatic integration with enterprise data catalogs:
+Conforms to `@context: "https://easydp.in/schema/v1/pii-inventory.json"` for programmatic integration with data catalogs and compliance exports:
 
 ```json
 {

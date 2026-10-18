@@ -20,7 +20,7 @@ EASYDP_BANNER = r"""[bold cyan]
                  |___/   Local PII Scanner
 [/bold cyan]
 [bold]EasyDP Local PII Scanner[/bold]
-[dim]Enterprise-grade, 100% offline DPDP compliance scanner | [underline]https://easydp.in[/underline][/dim]
+[dim]Built for SMBs & Growing Businesses | 100% offline DPDP scanner | [underline]https://easydp.in[/underline][/dim]
 """
 
 DISCLAIMER_TEXT = """[bold yellow][!] LEGAL & COMPLIANCE DISCLAIMER[/bold yellow]

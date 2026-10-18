@@ -42,7 +42,7 @@ def configure_windows_terminal() -> None:
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="easydp-scan",
-        description="EasyDP Local PII Scanner - Enterprise-grade, 100% offline DPDP compliance scanner.",
+        description="EasyDP Local PII Scanner - 100% offline DPDP compliance scanner built for SMBs.",
         epilog=f"Learn more at {__homepage__} | Powered by EasyDP.in",
     )
     parser.add_argument(
@@ -188,20 +188,20 @@ def print_completion_banner(
         )
 
     cta_content = (
-        "[bold white]Ready to automate DPDP compliance, RoPA management & continuous data discovery?[/bold white]\n\n"
-        "  🚀 [bold cyan]Sign up for the complete EasyDP Governance Platform:[/bold cyan]\n"
+        "[bold white]Ready to automate DPDP compliance, RoPA management & continuous data discovery for your business?[/bold white]\n\n"
+        "  🚀 [bold cyan]Sign up for EasyDP — Built for SMBs & Growing Businesses:[/bold cyan]\n"
         "     [bold underline green][link=https://easydp.in]https://easydp.in[/link][/bold underline green]\n\n"
         "  📚 [bold yellow]Free DPDP Compliance Checklists & Guides:[/bold yellow]\n"
         f"     [bold underline cyan][link={__guides_url__}]{__guides_url__}[/link][/bold underline cyan]\n\n"
         "  [dim]• Automated Data Mapping & RoPA (Section 8)\n"
-        "  • Continuous Database, Cloud & Endpoint Scanners\n"
+        "  • Lightweight Cloud Platform Tailored for SMBs & Startups\n"
         "  • Statutory DPDP Notice & Grievance Redressal[/dim]"
     )
     console.print()
     console.print(
         Panel(
             cta_content,
-            title="[bold yellow]✨ EasyDP Enterprise Governance[/bold yellow]",
+            title="[bold yellow]✨ EasyDP Privacy for SMBs[/bold yellow]",
             border_style="cyan",
             padding=(1, 2),
         )
