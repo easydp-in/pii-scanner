@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/easydp-in/pii-scanner/actions/workflows/ci.yml"><img src="https://github.com/easydp-in/pii-scanner/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI Status"/></a>
-  <a href="https://github.com/easydp-in/pii-scanner/actions/workflows/release.yml"><img src="https://github.com/easydp-in/pii-scanner/actions/workflows/release.yml/badge.svg" alt="Release Pipeline"/></a>
+  <a href="https://github.com/easydp-in/pii-scanner/releases/latest"><img src="https://img.shields.io/github/v/release/easydp-in/pii-scanner?color=blue&label=Release" alt="Latest Release"/></a>
   <a href="https://github.com/easydp-in/pii-scanner/actions/workflows/smoke.yml"><img src="https://github.com/easydp-in/pii-scanner/actions/workflows/smoke.yml/badge.svg" alt="Smoke Tests"/></a>
   <a href="https://github.com/easydp-in/pii-scanner/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"/></a>
 </p>
@@ -23,8 +23,8 @@
   <img src="https://img.shields.io/badge/OS-macOS-000000?logo=apple&logoColor=white" alt="macOS"/>
   <img src="https://img.shields.io/badge/OS-Linux-FCC624?logo=linux&logoColor=black" alt="Linux"/>
   <img src="https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12%20|%203.13-3776AB?logo=python&logoColor=white" alt="Python Support"/>
-  <a href="https://pypi.org/project/easydp-pii-scanner/"><img src="https://img.shields.io/pypi/v/easydp-pii-scanner.svg?color=green" alt="PyPI Version"/></a>
-  <a href="https://www.npmjs.com/package/easydp-pii-scanner"><img src="https://img.shields.io/npm/v/easydp-pii-scanner.svg?color=red" alt="NPM Version"/></a>
+  <a href="https://pypi.org/project/easydp-pii-scanner/"><img src="https://img.shields.io/pypi/v/easydp-pii-scanner?color=green" alt="PyPI Version"/></a>
+  <a href="https://www.npmjs.com/package/easydp-pii-scanner"><img src="https://img.shields.io/npm/v/easydp-pii-scanner?color=red" alt="NPM Version"/></a>
   <a href="https://easydp.in"><img src="https://img.shields.io/badge/Privacy-100%25%20Offline%20(Zero%20Egress)-10B981" alt="Zero Egress"/></a>
   <a href="https://easydp-in.github.io/pii-scanner/"><img src="https://img.shields.io/badge/Site-GitHub%20Pages-blue?logo=github&logoColor=white" alt="Live Site"/></a>
 </p>

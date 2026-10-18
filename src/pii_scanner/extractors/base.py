@@ -72,12 +72,25 @@ class BaseExtractor(ABC):
             if any(
                 k in col_lower
                 for k in (
-                    "name", "full name", "customer name", "employee name",
-                    "candidate name", "client name", "patient name", "student name",
-                    "applicant name", "contact person", "director name",
-                    "nominee name", "father name", "mother name", "spouse name",
+                    "name",
+                    "full name",
+                    "customer name",
+                    "employee name",
+                    "candidate name",
+                    "client name",
+                    "patient name",
+                    "student name",
+                    "applicant name",
+                    "contact person",
+                    "director name",
+                    "nominee name",
+                    "father name",
+                    "mother name",
+                    "spouse name",
                 )
-            ) and not any(k in col_lower for k in ("company", "bank", "file", "folder", "org", "user")):
+            ) and not any(
+                k in col_lower for k in ("company", "bank", "file", "folder", "org", "user")
+            ):
                 if self.name_val.is_valid_name(text_clean):
                     findings.append(
                         Finding(
@@ -92,8 +105,13 @@ class BaseExtractor(ABC):
             if any(
                 k in col_lower
                 for k in (
-                    "address", "street", "residential address", "permanent address",
-                    "billing address", "shipping address", "communication address",
+                    "address",
+                    "street",
+                    "residential address",
+                    "permanent address",
+                    "billing address",
+                    "shipping address",
+                    "communication address",
                 )
             ):
                 if len(text_clean) >= 6:
@@ -107,7 +125,10 @@ class BaseExtractor(ABC):
                     )
 
             # 3. PIN Code column
-            if any(k in col_lower for k in ("pin", "pincode", "pin code", "postal code", "zip", "zip code", "zipcode")):
+            if any(
+                k in col_lower
+                for k in ("pin", "pincode", "pin code", "postal code", "zip", "zip code", "zipcode")
+            ):
                 clean_digits = text_clean.replace(" ", "")
                 if self.address_val.is_valid_pincode(clean_digits):
                     findings.append(

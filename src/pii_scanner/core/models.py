@@ -36,7 +36,6 @@ class PIIType(str, Enum):
         return PIICategory.CONTACT
 
 
-
 # Precomputed O(1) lookups from PII type string value to PIICategory / category name
 PII_VALUE_TO_CATEGORY: dict[str, PIICategory] = {pt.value: pt.category for pt in PIIType}
 PII_VALUE_TO_CATEGORY_STR: dict[str, str] = {pt.value: pt.category.value for pt in PIIType}

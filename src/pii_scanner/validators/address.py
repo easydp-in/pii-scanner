@@ -65,9 +65,23 @@ class AddressValidator:
         has_kw = any(
             k in lower
             for k in (
-                "road", "street", "nagar", "colony", "layout", "sector",
-                "flat", "plot", "floor", "building", "tower", "cross", "main",
-                "apartment", "apartments", "block", "lane",
+                "road",
+                "street",
+                "nagar",
+                "colony",
+                "layout",
+                "sector",
+                "flat",
+                "plot",
+                "floor",
+                "building",
+                "tower",
+                "cross",
+                "main",
+                "apartment",
+                "apartments",
+                "block",
+                "lane",
             )
         )
         has_pin = bool(re.search(r"\b[1-9][0-9]{5}\b", clean))
@@ -118,8 +132,19 @@ class AddressValidator:
                 or any(
                     k in addr.lower()
                     for k in (
-                        "road", "street", "nagar", "colony", "layout", "sector",
-                        "flat", "plot", "floor", "building", "tower", "cross", "main",
+                        "road",
+                        "street",
+                        "nagar",
+                        "colony",
+                        "layout",
+                        "sector",
+                        "flat",
+                        "plot",
+                        "floor",
+                        "building",
+                        "tower",
+                        "cross",
+                        "main",
                     )
                 )
             ):

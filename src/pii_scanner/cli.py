@@ -368,18 +368,18 @@ def run_cli(args: list[str] | None = None) -> int:
         if "cli" in formats and not parsed.quiet:
             ConsoleReporter(console=console).render_summary(summary)
 
-        html_out: Path | None = None
+        tally_html_out: Path | None = None
         if "html" in formats:
-            html_out = out_dir / "tally_report.html"
-            HTMLReporter().save(summary, str(html_out))
+            tally_html_out = out_dir / "tally_report.html"
+            HTMLReporter().save(summary, str(tally_html_out))
 
-        json_out: Path | None = None
+        tally_json_out: Path | None = None
         if "json" in formats:
-            json_out = out_dir / "tally_report.json"
-            JSONReporter().save(summary, str(json_out))
+            tally_json_out = out_dir / "tally_report.json"
+            JSONReporter().save(summary, str(tally_json_out))
 
         if not parsed.quiet:
-            print_completion_banner(console, html_out, json_out, active_log_path)
+            print_completion_banner(console, tally_html_out, tally_json_out, active_log_path)
 
         return 0
 

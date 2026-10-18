@@ -49,7 +49,9 @@ class ExcelExtractor(BaseExtractor):
                             headers[col_idx] if col_idx < len(headers) else f"Col {col_idx + 1}"
                         )
                         location = f"Sheet '{sheetname}', Row {row_idx}, Col '{col_name}'"
-                        cell_findings = self.scan_text_segment(cell_str, location, column_name=col_name)
+                        cell_findings = self.scan_text_segment(
+                            cell_str, location, column_name=col_name
+                        )
                         for finding in cell_findings:
                             all_findings.append(finding)
                             findings_by_type[finding.pii_type.value] += 1

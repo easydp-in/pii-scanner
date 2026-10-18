@@ -7,8 +7,6 @@ from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
 
-logger = logging.getLogger("pii_scanner.engine")
-
 from pii_scanner import __version__
 from pii_scanner.core.models import (
     DataInventorySummary,
@@ -22,6 +20,8 @@ from pii_scanner.extractors.odt_scanner import ODTExtractor
 from pii_scanner.extractors.pdf_scanner import PDFExtractor
 from pii_scanner.extractors.rtf_scanner import RTFExtractor
 from pii_scanner.extractors.text_scanner import TextExtractor
+
+logger = logging.getLogger("pii_scanner.engine")
 
 DEFAULT_IGNORED_DIRS = {
     # Developer & Build Artifacts
@@ -230,7 +230,9 @@ class ScannerEngine:
             ext = file_p.suffix.lower()
             extractor = self.registry.get(ext)
             if not extractor:
-                logger.debug("Skipping unsupported extension [%d/%d]: %s", idx, total_files, file_p.name)
+                logger.debug(
+                    "Skipping unsupported extension [%d/%d]: %s", idx, total_files, file_p.name
+                )
                 continue
 
             scan_res = extractor.extract(str(file_p))
@@ -344,4 +346,3 @@ class ScannerEngine:
         summary = self._scan_file_list(all_files, ", ".join(target_paths), progress_callback)
         summary.skipped_targets = skipped_targets
         return summary
-

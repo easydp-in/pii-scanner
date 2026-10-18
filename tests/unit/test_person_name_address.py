@@ -60,16 +60,24 @@ def test_address_pincode_validation() -> None:
     assert validator.is_valid_pincode("600001") is True
     # Invalid PIN codes
     assert validator.is_valid_pincode("012345") is False  # Starts with 0
-    assert validator.is_valid_pincode("56003") is False   # 5 digits
-    assert validator.is_valid_pincode("5600345") is False # 7 digits
+    assert validator.is_valid_pincode("56003") is False  # 5 digits
+    assert validator.is_valid_pincode("5600345") is False  # 7 digits
     assert validator.is_valid_pincode("ABCDEF") is False
 
 
 def test_address_physical_validation() -> None:
     validator = AddressValidator()
-    assert validator.is_valid_address("Address: #123, 4th Cross, Indiranagar, Bengaluru 560038") is True
-    assert validator.is_valid_address("Flat 402, Sunshine Apartments, MG Road, Pune - 411001") is True
-    assert validator.is_valid_address("Plot 12, Sector 5, Salt Lake, Kolkata, West Bengal 700091") is True
+    assert (
+        validator.is_valid_address("Address: #123, 4th Cross, Indiranagar, Bengaluru 560038")
+        is True
+    )
+    assert (
+        validator.is_valid_address("Flat 402, Sunshine Apartments, MG Road, Pune - 411001") is True
+    )
+    assert (
+        validator.is_valid_address("Plot 12, Sector 5, Salt Lake, Kolkata, West Bengal 700091")
+        is True
+    )
     # Non-address text
     assert validator.is_valid_address("The quick brown fox jumps over the lazy dog") is False
 
