@@ -2,7 +2,7 @@
 
 import os
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -10,7 +10,6 @@ from pii_scanner import __version__
 from pii_scanner.core.models import (
     DataInventorySummary,
     FileScanResult,
-    PIIType,
 )
 from pii_scanner.extractors.base import BaseExtractor
 from pii_scanner.extractors.csv_scanner import CSVExtractor
@@ -62,7 +61,7 @@ def get_common_user_directories() -> list[str]:
     return [str(p) for p in candidates if p.exists() and p.is_dir()]
 
 
-DEFAULT_SUPPORTED_EXTENSIONS = {
+DEFAULT_SUPPORTED_EXTENSIONS: dict[str, type[BaseExtractor]] = {
     # Tabular & Spreadsheets
     ".csv": CSVExtractor,
     ".tsv": CSVExtractor,
@@ -87,21 +86,93 @@ DEFAULT_SUPPORTED_EXTENSIONS = {
 }
 
 
+class ExtractorRegistry:
+    """Pluggable registry mapping file extensions to BaseExtractor instances with singleton reuse."""
+
+    def __init__(
+        self,
+        custom_mapping: Mapping[str, type[BaseExtractor] | BaseExtractor] | None = None,
+    ) -> None:
+        self._extractors: dict[str, BaseExtractor] = {}
+        if custom_mapping:
+            for ext, item in custom_mapping.items():
+                self.register(ext, item)
+        else:
+            self._load_defaults()
+
+    def _load_defaults(self) -> None:
+        csv_ext = CSVExtractor()
+        excel_ext = ExcelExtractor()
+        pdf_ext = PDFExtractor()
+        docx_ext = DocxExtractor()
+        odt_ext = ODTExtractor()
+        rtf_ext = RTFExtractor()
+        text_ext = TextExtractor()
+
+        defaults: dict[str, BaseExtractor] = {
+            ".csv": csv_ext,
+            ".tsv": csv_ext,
+            ".xlsx": excel_ext,
+            ".xlsm": excel_ext,
+            ".pdf": pdf_ext,
+            ".docx": docx_ext,
+            ".dotx": docx_ext,
+            ".odt": odt_ext,
+            ".ods": odt_ext,
+            ".rtf": rtf_ext,
+            ".txt": text_ext,
+            ".log": text_ext,
+            ".md": text_ext,
+            ".json": text_ext,
+            ".xml": text_ext,
+            ".sql": text_ext,
+            ".yaml": text_ext,
+            ".yml": text_ext,
+        }
+        for ext, inst in defaults.items():
+            self._extractors[ext.lower()] = inst
+
+    def register(self, ext: str, extractor_or_cls: type[BaseExtractor] | BaseExtractor) -> None:
+        """Register or override an extractor for a given file extension."""
+        normalized = ext.lower() if ext.startswith(".") else f".{ext.lower()}"
+        if isinstance(extractor_or_cls, type):
+            self._extractors[normalized] = extractor_or_cls()
+        else:
+            self._extractors[normalized] = extractor_or_cls
+
+    def get(self, ext: str) -> BaseExtractor | None:
+        """Retrieve the extractor instance registered for the extension."""
+        return self._extractors.get(ext.lower())
+
+    def supported_extensions(self) -> set[str]:
+        """Return the set of currently registered extensions."""
+        return set(self._extractors.keys())
+
+    def __contains__(self, ext: str) -> bool:
+        return ext.lower() in self._extractors
+
+
 class ScannerEngine:
     """Discovers, scans, and aggregates data ownership & PII inventory metrics."""
 
     def __init__(
         self,
         ignored_dirs: set[str] | None = None,
-        custom_extractors: dict[str, type[BaseExtractor]] | None = None,
+        custom_extractors: Mapping[str, type[BaseExtractor]] | None = None,
+        registry: ExtractorRegistry | None = None,
     ) -> None:
         self.ignored_dirs = set(ignored_dirs) if ignored_dirs is not None else DEFAULT_IGNORED_DIRS
-        self.extractors_map: dict[str, BaseExtractor] = {}
+        if registry is not None:
+            self.registry = registry
+        elif custom_extractors is not None:
+            self.registry = ExtractorRegistry(custom_extractors)
+        else:
+            self.registry = ExtractorRegistry()
 
-        # Instantiate extractors
-        mapping = custom_extractors or DEFAULT_SUPPORTED_EXTENSIONS
-        for ext, ext_cls in mapping.items():
-            self.extractors_map[ext.lower()] = ext_cls()
+    @property
+    def extractors_map(self) -> dict[str, BaseExtractor]:
+        """Backward-compatibility property exposing the internal mapping."""
+        return self.registry._extractors
 
     def scan_directory(
         self,
@@ -124,7 +195,7 @@ class ScannerEngine:
 
                 for f in files:
                     ext = Path(f).suffix.lower()
-                    if ext in self.extractors_map:
+                    if ext in self.registry:
                         full_p = Path(root) / f
                         if exclude_patterns:
                             if any(pattern in str(full_p) for pattern in exclude_patterns):
@@ -139,35 +210,39 @@ class ScannerEngine:
         stale_1y = 0
         stale_3y = 0
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         for idx, file_p in enumerate(files_to_scan, start=1):
             if progress_callback:
                 progress_callback(file_p.name, idx, total_files)
 
             ext = file_p.suffix.lower()
-            extractor = self.extractors_map.get(ext)
+            extractor = self.registry.get(ext)
             if not extractor:
                 continue
 
             scan_res = extractor.extract(str(file_p))
             results.append(scan_res)
 
-            # Check staleness
-            days_old = (now - scan_res.modified_time).days
+            # Check staleness with timezone-aware normalization
+            mod_time = scan_res.modified_time
+            if mod_time.tzinfo is None:
+                mod_time = mod_time.replace(tzinfo=timezone.utc)
+            days_old = (now - mod_time).days
             if days_old > 365 * 3:
                 stale_3y += 1
             elif days_old > 365:
                 stale_1y += 1
 
             if scan_res.is_sensitive:
-                # Accumulate type and category counts
+                # Accumulate type and category counts via fast O(1) lookups
+                from pii_scanner.core.models import PII_VALUE_TO_CATEGORY_STR, PIICategory
+
                 for pii_type_str, count in scan_res.findings_by_type.items():
                     by_type[pii_type_str] += count
-                    # Map to category
-                    for pt in PIIType:
-                        if pt.value == pii_type_str:
-                            by_category[pt.category.value] += count
-                            break
+                    category_name = PII_VALUE_TO_CATEGORY_STR.get(
+                        pii_type_str, PIICategory.CONTACT.value
+                    )
+                    by_category[category_name] += count
 
                 # High risk identification: Downloads/Desktop or dense findings
                 path_str = str(file_p)
@@ -210,6 +285,7 @@ class ScannerEngine:
         high_risk_files: list[str] = []
         stale_1y = 0
         stale_3y = 0
+        skipped_targets: list[str] = []
 
         for path in target_paths:
             try:
@@ -222,7 +298,10 @@ class ScannerEngine:
                 high_risk_files.extend(sub_summary.high_risk_files)
                 stale_1y += sub_summary.stale_files_over_1y
                 stale_3y += sub_summary.stale_files_over_3y
-            except Exception:
+                if sub_summary.skipped_targets:
+                    skipped_targets.extend(sub_summary.skipped_targets)
+            except Exception as e:
+                skipped_targets.append(f"{path}: {e}")
                 continue
 
         total_files = len(all_results)
@@ -243,4 +322,5 @@ class ScannerEngine:
             stale_files_over_1y=stale_1y,
             stale_files_over_3y=stale_3y,
             results=all_results,
+            skipped_targets=skipped_targets,
         )

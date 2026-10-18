@@ -82,3 +82,70 @@ def test_scanner_engine_multiple_directories(tmp_path: Path) -> None:
     assert summary.total_sensitive_files == 1
     assert summary.total_clean_files == 1
     assert summary.total_pii_instances == 1
+
+
+def test_extractor_registry_custom_registration(tmp_path: Path) -> None:
+    from pii_scanner.core.engine import ExtractorRegistry
+    from pii_scanner.extractors.text_scanner import TextExtractor
+
+    registry = ExtractorRegistry()
+    assert ".csv" in registry
+    assert ".txt" in registry
+
+    # Register custom extension .customlog
+    registry.register(".customlog", TextExtractor)
+    assert ".customlog" in registry
+    assert isinstance(registry.get(".customlog"), TextExtractor)
+    assert ".customlog" in registry.supported_extensions()
+
+    # Scan with custom registry
+    engine = ScannerEngine(registry=registry)
+    custom_file = tmp_path / "app.customlog"
+    custom_file.write_text("Admin: 9876543210", encoding="utf-8")
+    summary = engine.scan_directory(str(tmp_path))
+
+    assert summary.total_files_scanned == 1
+    assert summary.total_sensitive_files == 1
+    assert summary.total_pii_instances == 1
+
+
+def test_scanner_engine_timezone_naive_resilience(tmp_path: Path) -> None:
+    from datetime import datetime
+    from unittest.mock import patch
+
+    from pii_scanner.core.models import FileScanResult
+
+    # Mock extract to return naive modified_time
+    clean_file = tmp_path / "naive.txt"
+    clean_file.write_text("Phone: 9876543210", encoding="utf-8")
+
+    engine = ScannerEngine()
+    dummy_res = FileScanResult(
+        file_path=str(clean_file),
+        file_name="naive.txt",
+        file_size_bytes=100,
+        modified_time=datetime(2020, 1, 1, 12, 0, 0),  # naive datetime
+        is_sensitive=True,
+        findings_count=1,
+        findings_by_type={PIIType.PHONE.value: 1},
+    )
+
+    with patch.object(engine.registry.get(".txt"), "extract", return_value=dummy_res):
+        summary = engine.scan_directory(str(tmp_path))
+        # Staleness should calculate without raising TypeError
+        assert summary.stale_files_over_3y >= 1
+
+
+def test_scanner_engine_skipped_targets(tmp_path: Path) -> None:
+    dir1 = tmp_path / "valid_dir"
+    dir1.mkdir()
+    (dir1 / "note.txt").write_text("Hello", encoding="utf-8")
+
+    non_existent = str(tmp_path / "does_not_exist")
+
+    engine = ScannerEngine()
+    summary = engine.scan_directories([str(dir1), non_existent])
+
+    assert summary.total_files_scanned == 1
+    assert len(summary.skipped_targets) == 1
+    assert "does_not_exist" in summary.skipped_targets[0]

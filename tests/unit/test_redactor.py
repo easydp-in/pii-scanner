@@ -37,6 +37,30 @@ def test_redactor_masks_phone() -> None:
     assert masked.endswith("43210")
 
 
+def test_redactor_masks_ifsc() -> None:
+    redactor = Redactor()
+    raw = "SBIN0123456"
+    masked = redactor.mask(PIIType.IFSC, raw)
+    assert "123" not in masked
+    assert masked == "SBIN0***456"
+
+
+def test_redactor_masks_upi() -> None:
+    redactor = Redactor()
+    raw = "john.doe@okicici"
+    masked = redactor.mask(PIIType.UPI, raw)
+    assert "john.doe" not in masked
+    assert "@okicici" in masked
+
+
+def test_redactor_masks_email() -> None:
+    redactor = Redactor()
+    raw = "sarah.connor@sky.net"
+    masked = redactor.mask(PIIType.EMAIL, raw)
+    assert "sarah.connor" not in masked
+    assert "@sky.net" in masked
+
+
 def test_redactor_generic_fallback() -> None:
     redactor = Redactor()
     raw = "SecretValue123"

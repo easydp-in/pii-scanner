@@ -8,6 +8,8 @@ from pathlib import Path
 from pii_scanner.core.models import FileScanResult, Finding
 from pii_scanner.extractors.base import BaseExtractor
 
+MAX_UNCOMPRESSED_ENTRY_SIZE = 50 * 1024 * 1024  # 50 MB
+
 
 class ODTExtractor(BaseExtractor):
     """Extracts sensitive PII from OpenDocument (.odt, .ods) files."""
@@ -30,6 +32,19 @@ class ODTExtractor(BaseExtractor):
                         is_sensitive=False,
                         findings_count=0,
                         error_message="Invalid OpenDocument archive: content.xml not found",
+                    )
+
+                # Guard against zip bomb / excessive decompression attacks
+                content_info = z.getinfo("content.xml")
+                if content_info.file_size > MAX_UNCOMPRESSED_ENTRY_SIZE:
+                    return FileScanResult(
+                        file_path=str(path.resolve()),
+                        file_name=path.name,
+                        file_size_bytes=file_size,
+                        modified_time=modified_time,
+                        is_sensitive=False,
+                        findings_count=0,
+                        error_message="Decompression guardrail exceeded: entry size exceeds safety limits",
                     )
 
                 xml_bytes = z.read("content.xml")

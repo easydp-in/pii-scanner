@@ -3,6 +3,8 @@
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from pii_scanner.core.engine import ScannerEngine
 from pii_scanner.core.models import PIIType
 from pii_scanner.extractors.docx_scanner import DocxExtractor
@@ -168,3 +170,31 @@ def test_scanner_engine_discovers_all_documents(tmp_path: Path) -> None:
 
     assert summary.total_files_scanned >= 2
     assert summary.total_sensitive_files >= 2
+
+
+def test_docx_decompression_guardrail(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("pii_scanner.extractors.docx_scanner.MAX_UNCOMPRESSED_ENTRY_SIZE", 10)
+    docx_file = tmp_path / "bomb.docx"
+    with zipfile.ZipFile(docx_file, "w") as z:
+        z.writestr("word/document.xml", b"<document_longer_than_ten_bytes/>")
+
+    extractor = DocxExtractor()
+    result = extractor.extract(str(docx_file))
+
+    assert result.is_sensitive is False
+    assert result.error_message is not None
+    assert "Decompression guardrail exceeded" in result.error_message
+
+
+def test_odt_decompression_guardrail(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("pii_scanner.extractors.odt_scanner.MAX_UNCOMPRESSED_ENTRY_SIZE", 10)
+    odt_file = tmp_path / "bomb.odt"
+    with zipfile.ZipFile(odt_file, "w") as z:
+        z.writestr("content.xml", b"<content_longer_than_ten_bytes/>")
+
+    extractor = ODTExtractor()
+    result = extractor.extract(str(odt_file))
+
+    assert result.is_sensitive is False
+    assert result.error_message is not None
+    assert "Decompression guardrail exceeded" in result.error_message

@@ -9,7 +9,7 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pii_scanner.core.models import FileScanResult, Finding
 from pii_scanner.extractors.base import BaseExtractor
@@ -31,12 +31,21 @@ TALLY_LEDGER_REQUEST_XML = """<ENVELOPE>
 </ENVELOPE>"""
 
 
+LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+
+
 class TallyConnector(BaseExtractor):
     """Direct local connector for Tally accounting software on the PC."""
 
     def __init__(self, host: str = "127.0.0.1", port: int = 9000, timeout_seconds: int = 5) -> None:
         super().__init__()
-        self.host = host
+        host_clean = host.strip().lower()
+        if host_clean not in LOOPBACK_HOSTS:
+            raise ValueError(
+                f"Security restriction: TallyConnector strictly permits loopback connections "
+                f"({', '.join(sorted(LOOPBACK_HOSTS))}) to enforce zero-telemetry."
+            )
+        self.host = host_clean
         self.port = port
         self.timeout = timeout_seconds
 
@@ -65,7 +74,7 @@ class TallyConnector(BaseExtractor):
                 file_path=url,
                 file_name="Tally ERP (localhost:9000)",
                 file_size_bytes=0,
-                modified_time=datetime.now(),
+                modified_time=datetime.now(timezone.utc),
                 is_sensitive=False,
                 findings_count=0,
                 error_message=f"Tally is offline or not listening on port {self.port}: {e.reason}",
@@ -75,7 +84,7 @@ class TallyConnector(BaseExtractor):
                 file_path=url,
                 file_name="Tally ERP (localhost:9000)",
                 file_size_bytes=0,
-                modified_time=datetime.now(),
+                modified_time=datetime.now(timezone.utc),
                 is_sensitive=False,
                 findings_count=0,
                 error_message=f"Failed to query Tally on port {self.port}: {e}",
@@ -100,7 +109,7 @@ class TallyConnector(BaseExtractor):
                 file_path=url,
                 file_name="Tally ERP (localhost:9000)",
                 file_size_bytes=len(xml_data),
-                modified_time=datetime.now(),
+                modified_time=datetime.now(timezone.utc),
                 is_sensitive=False,
                 findings_count=0,
                 error_message=f"Tally response was not valid XML: {e}",
@@ -110,7 +119,7 @@ class TallyConnector(BaseExtractor):
             file_path=url,
             file_name="Tally ERP (localhost:9000)",
             file_size_bytes=len(xml_data),
-            modified_time=datetime.now(),
+            modified_time=datetime.now(timezone.utc),
             is_sensitive=len(all_findings) > 0,
             findings_count=len(all_findings),
             findings_by_type=dict(findings_by_type),

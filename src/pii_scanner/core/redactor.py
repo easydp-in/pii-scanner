@@ -1,5 +1,7 @@
 """Centralized Redactor ensuring all sensitive values are safely masked before logging or display."""
 
+from collections.abc import Callable
+
 from pii_scanner.core.models import PIIType
 from pii_scanner.validators.aadhaar import AadhaarValidator
 from pii_scanner.validators.email import EmailValidator
@@ -13,31 +15,47 @@ from pii_scanner.validators.upi import UPIValidator
 class Redactor:
     """Provides consistent, audit-compliant redaction across all PII data types."""
 
-    def __init__(self) -> None:
-        self.aadhaar_val = AadhaarValidator()
-        self.pan_val = PANValidator()
-        self.gstin_val = GSTINValidator()
-        self.ifsc_val = IFSCValidator()
-        self.upi_val = UPIValidator()
-        self.phone_val = IndianPhoneValidator()
-        self.email_val = EmailValidator()
+    _DEFAULT_AADHAAR = AadhaarValidator()
+    _DEFAULT_PAN = PANValidator()
+    _DEFAULT_GSTIN = GSTINValidator()
+    _DEFAULT_IFSC = IFSCValidator()
+    _DEFAULT_UPI = UPIValidator()
+    _DEFAULT_PHONE = IndianPhoneValidator()
+    _DEFAULT_EMAIL = EmailValidator()
+
+    def __init__(
+        self,
+        aadhaar_val: AadhaarValidator | None = None,
+        pan_val: PANValidator | None = None,
+        gstin_val: GSTINValidator | None = None,
+        ifsc_val: IFSCValidator | None = None,
+        upi_val: UPIValidator | None = None,
+        phone_val: IndianPhoneValidator | None = None,
+        email_val: EmailValidator | None = None,
+    ) -> None:
+        self.aadhaar_val = aadhaar_val or self._DEFAULT_AADHAAR
+        self.pan_val = pan_val or self._DEFAULT_PAN
+        self.gstin_val = gstin_val or self._DEFAULT_GSTIN
+        self.ifsc_val = ifsc_val or self._DEFAULT_IFSC
+        self.upi_val = upi_val or self._DEFAULT_UPI
+        self.phone_val = phone_val or self._DEFAULT_PHONE
+        self.email_val = email_val or self._DEFAULT_EMAIL
+
+        self._mask_dispatch: dict[PIIType, Callable[[str], str]] = {
+            PIIType.AADHAAR: self.aadhaar_val.mask,
+            PIIType.PAN: self.pan_val.mask,
+            PIIType.GSTIN: self.gstin_val.mask,
+            PIIType.IFSC: self.ifsc_val.mask,
+            PIIType.UPI: self.upi_val.mask,
+            PIIType.PHONE: self.phone_val.mask,
+            PIIType.EMAIL: self.email_val.mask,
+        }
 
     def mask(self, pii_type: PIIType, raw_value: str) -> str:
         """Mask a sensitive value according to its statutory or domain rules."""
-        if pii_type == PIIType.AADHAAR:
-            return self.aadhaar_val.mask(raw_value)
-        if pii_type == PIIType.PAN:
-            return self.pan_val.mask(raw_value)
-        if pii_type == PIIType.GSTIN:
-            return self.gstin_val.mask(raw_value)
-        if pii_type == PIIType.IFSC:
-            return self.ifsc_val.mask(raw_value)
-        if pii_type == PIIType.UPI:
-            return self.upi_val.mask(raw_value)
-        if pii_type == PIIType.PHONE:
-            return self.phone_val.mask(raw_value)
-        if pii_type == PIIType.EMAIL:
-            return self.email_val.mask(raw_value)
+        mask_fn = self._mask_dispatch.get(pii_type)
+        if mask_fn:
+            return mask_fn(raw_value)
         return self.mask_generic(raw_value)
 
     @staticmethod

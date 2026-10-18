@@ -33,6 +33,11 @@ class PIIType(str, Enum):
         return PIICategory.CONTACT
 
 
+# Precomputed O(1) lookups from PII type string value to PIICategory / category name
+PII_VALUE_TO_CATEGORY: dict[str, PIICategory] = {pt.value: pt.category for pt in PIIType}
+PII_VALUE_TO_CATEGORY_STR: dict[str, str] = {pt.value: pt.category.value for pt in PIIType}
+
+
 @dataclass
 class Finding:
     """Individual sensitive data finding with location and safe redacted preview."""
@@ -76,3 +81,4 @@ class DataInventorySummary:
     stale_files_over_1y: int = 0
     stale_files_over_3y: int = 0
     results: list[FileScanResult] = field(default_factory=list)
+    skipped_targets: list[str] = field(default_factory=list)

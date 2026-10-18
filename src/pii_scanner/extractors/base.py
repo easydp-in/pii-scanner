@@ -1,7 +1,7 @@
 """Base extractor interface and scan helpers for file analysis."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pii_scanner.core.models import FileScanResult, Finding, PIIType
@@ -17,14 +17,31 @@ from pii_scanner.validators.upi import UPIValidator
 class BaseExtractor(ABC):
     """Abstract base class for all file and data source extractors."""
 
-    def __init__(self) -> None:
-        self.aadhaar_val = AadhaarValidator()
-        self.pan_val = PANValidator()
-        self.gstin_val = GSTINValidator()
-        self.ifsc_val = IFSCValidator()
-        self.upi_val = UPIValidator()
-        self.phone_val = IndianPhoneValidator()
-        self.email_val = EmailValidator()
+    _DEFAULT_AADHAAR = AadhaarValidator()
+    _DEFAULT_PAN = PANValidator()
+    _DEFAULT_GSTIN = GSTINValidator()
+    _DEFAULT_IFSC = IFSCValidator()
+    _DEFAULT_UPI = UPIValidator()
+    _DEFAULT_PHONE = IndianPhoneValidator()
+    _DEFAULT_EMAIL = EmailValidator()
+
+    def __init__(
+        self,
+        aadhaar_val: AadhaarValidator | None = None,
+        pan_val: PANValidator | None = None,
+        gstin_val: GSTINValidator | None = None,
+        ifsc_val: IFSCValidator | None = None,
+        upi_val: UPIValidator | None = None,
+        phone_val: IndianPhoneValidator | None = None,
+        email_val: EmailValidator | None = None,
+    ) -> None:
+        self.aadhaar_val = aadhaar_val or self._DEFAULT_AADHAAR
+        self.pan_val = pan_val or self._DEFAULT_PAN
+        self.gstin_val = gstin_val or self._DEFAULT_GSTIN
+        self.ifsc_val = ifsc_val or self._DEFAULT_IFSC
+        self.upi_val = upi_val or self._DEFAULT_UPI
+        self.phone_val = phone_val or self._DEFAULT_PHONE
+        self.email_val = email_val or self._DEFAULT_EMAIL
 
     @abstractmethod
     def extract(self, file_path: str) -> FileScanResult:
@@ -119,6 +136,6 @@ class BaseExtractor(ABC):
     def get_file_metadata(file_path: str) -> tuple[int, datetime]:
         p = Path(file_path)
         if not p.exists():
-            return 0, datetime.now()
+            return 0, datetime.now(timezone.utc)
         stat = p.stat()
-        return stat.st_size, datetime.fromtimestamp(stat.st_mtime)
+        return stat.st_size, datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)

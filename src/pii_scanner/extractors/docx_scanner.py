@@ -8,6 +8,9 @@ from pathlib import Path
 from pii_scanner.core.models import FileScanResult, Finding
 from pii_scanner.extractors.base import BaseExtractor
 
+MAX_UNCOMPRESSED_ENTRY_SIZE = 50 * 1024 * 1024  # 50 MB
+MAX_TOTAL_UNCOMPRESSED_SIZE = 150 * 1024 * 1024  # 150 MB
+
 
 class DocxExtractor(BaseExtractor):
     """Extracts sensitive PII from Word (.docx, .dotx) documents."""
@@ -38,6 +41,23 @@ class DocxExtractor(BaseExtractor):
                         is_sensitive=False,
                         findings_count=0,
                         error_message="Invalid DOCX archive: word/document.xml not found",
+                    )
+
+                # Guard against zip bomb / excessive decompression attacks
+                target_infos = [z.getinfo(name) for name in xml_targets]
+                total_uncompressed = sum(info.file_size for info in target_infos)
+                if (
+                    any(info.file_size > MAX_UNCOMPRESSED_ENTRY_SIZE for info in target_infos)
+                    or total_uncompressed > MAX_TOTAL_UNCOMPRESSED_SIZE
+                ):
+                    return FileScanResult(
+                        file_path=str(path.resolve()),
+                        file_name=path.name,
+                        file_size_bytes=file_size,
+                        modified_time=modified_time,
+                        is_sensitive=False,
+                        findings_count=0,
+                        error_message="Decompression guardrail exceeded: entry or total size exceeds safety limits",
                     )
 
                 for target_xml in xml_targets:

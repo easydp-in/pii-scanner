@@ -54,3 +54,17 @@ def test_tally_connector_offline() -> None:
     assert result.is_sensitive is False
     assert result.error_message is not None
     assert "Tally is offline or not listening on port 59999" in result.error_message
+
+
+def test_tally_connector_rejects_remote_hosts() -> None:
+    import pytest
+
+    with pytest.raises(
+        ValueError, match="Security restriction: TallyConnector strictly permits loopback"
+    ):
+        TallyConnector(host="192.168.1.100")
+
+    with pytest.raises(
+        ValueError, match="Security restriction: TallyConnector strictly permits loopback"
+    ):
+        TallyConnector(host="evil-vault.internal")
