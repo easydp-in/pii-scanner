@@ -1,4 +1,4 @@
-# @easydp/pii-scanner
+# easydp-pii-scanner
 
 > **Enterprise-grade, 100% offline DPDP Act compliance scanner for local files and accounting systems.**
 > Powered by [EasyDP.in](https://easydp.in) — Built for India's Digital Personal Data Protection Act, 2023.
@@ -11,10 +11,10 @@ You can run `easydp-scan` directly via `npx` with zero installation:
 
 ```bash
 # Run scan on current directory
-npx @easydp/pii-scanner scan .
+npx easydp-pii-scanner scan .
 
 # Or install globally
-npm install -g @easydp/pii-scanner
+npm install -g easydp-pii-scanner
 easydp-scan scan ./my-data-folder --format html,json
 ```
 
