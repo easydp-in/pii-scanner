@@ -32,6 +32,25 @@ Technical deep-dive into the error-detection algorithms used to eliminate false 
 
 ---
 
+## 🤖 Prompt for AI Agents (Cursor, Claude Code, Copilot, Antigravity)
+
+Copy-paste this prompt into your AI coding assistant to automatically install and run the scanner in your repo:
+
+```text
+Please install and execute the EasyDP Local PII Scanner on this machine:
+1. Detect OS (Windows/macOS/Linux) and install via:
+   - Python: pip install git+https://github.com/easydp-in/pii-scanner.git
+   - Node: npx @easydp/pii-scanner scan .
+   - macOS/Linux shell: curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash
+   - Windows PowerShell: irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex
+2. Verify: easydp-scan --version
+3. Scan: easydp-scan scan . --format html,json,cli --output-dir ./reports
+4. Report path to ./reports/scan_report.html and summarize findings.
+Note: 100% offline with zero egress. Never upload or transmit raw personal data to any external server.
+```
+
+---
+
 ## 🚀 Quick Navigation
 - [Main GitHub Repository](https://github.com/easydp-in/pii-scanner)
 - [Official Website](https://easydp.in)
