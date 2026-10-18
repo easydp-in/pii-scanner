@@ -1,10 +1,13 @@
 """Core orchestration engine for local file discovery, routing, and PII inventory aggregation."""
 
+import logging
 import os
 from collections import defaultdict
 from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
+
+logger = logging.getLogger("pii_scanner.engine")
 
 from pii_scanner import __version__
 from pii_scanner.core.models import (
@@ -174,26 +177,26 @@ class ScannerEngine:
         """Backward-compatibility property exposing the internal mapping."""
         return self.registry._extractors
 
-    def scan_directory(
+    def discover_files(
         self,
-        target_path: str,
-        progress_callback: Callable[[str, int, int], None] | None = None,
+        target_path: str | Path,
         exclude_patterns: list[str] | None = None,
-    ) -> DataInventorySummary:
-        """Recursively scan a path and compile a comprehensive DPDP data inventory summary."""
+    ) -> list[Path]:
+        """Discover all supported candidate files under a single target path."""
         target = Path(target_path).resolve()
         if not target.exists():
             raise FileNotFoundError(f"Target path does not exist: {target_path}")
 
         files_to_scan: list[Path] = []
         if target.is_file():
-            files_to_scan.append(target)
+            if target.suffix.lower() in self.registry:
+                files_to_scan.append(target)
         else:
             for root, dirs, files in os.walk(target):
                 # Filter out ignored directories in-place
                 dirs[:] = [d for d in dirs if d not in self.ignored_dirs and not d.startswith(".")]
 
-                for f in files:
+                for f in sorted(files):
                     ext = Path(f).suffix.lower()
                     if ext in self.registry:
                         full_p = Path(root) / f
@@ -201,7 +204,15 @@ class ScannerEngine:
                             if any(pattern in str(full_p) for pattern in exclude_patterns):
                                 continue
                         files_to_scan.append(full_p)
+        return files_to_scan
 
+    def _scan_file_list(
+        self,
+        files_to_scan: list[Path],
+        target_label: str,
+        progress_callback: Callable[[str, int, int], None] | None = None,
+    ) -> DataInventorySummary:
+        """Scan a pre-discovered list of files and compute DPDP metrics."""
         total_files = len(files_to_scan)
         results: list[FileScanResult] = []
         by_category: dict[str, int] = defaultdict(int)
@@ -210,6 +221,7 @@ class ScannerEngine:
         stale_1y = 0
         stale_3y = 0
 
+        logger.info("Commencing scan of %d candidate files for '%s'...", total_files, target_label)
         now = datetime.now(timezone.utc)
         for idx, file_p in enumerate(files_to_scan, start=1):
             if progress_callback:
@@ -218,10 +230,29 @@ class ScannerEngine:
             ext = file_p.suffix.lower()
             extractor = self.registry.get(ext)
             if not extractor:
+                logger.debug("Skipping unsupported extension [%d/%d]: %s", idx, total_files, file_p.name)
                 continue
 
             scan_res = extractor.extract(str(file_p))
             results.append(scan_res)
+
+            if scan_res.error_message:
+                logger.warning(
+                    "Error parsing file [%d/%d] %s: %s",
+                    idx,
+                    total_files,
+                    file_p.name,
+                    scan_res.error_message,
+                )
+            else:
+                logger.debug(
+                    "Scanned [%d/%d] %s (%d bytes): %d findings",
+                    idx,
+                    total_files,
+                    file_p.name,
+                    scan_res.file_size_bytes,
+                    scan_res.findings_count,
+                )
 
             # Check staleness with timezone-aware normalization
             mod_time = scan_res.modified_time
@@ -234,7 +265,6 @@ class ScannerEngine:
                 stale_1y += 1
 
             if scan_res.is_sensitive:
-                # Accumulate type and category counts via fast O(1) lookups
                 from pii_scanner.core.models import PII_VALUE_TO_CATEGORY_STR, PIICategory
 
                 for pii_type_str, count in scan_res.findings_by_type.items():
@@ -256,10 +286,19 @@ class ScannerEngine:
         sensitive_count = sum(1 for r in results if r.is_sensitive)
         total_pii = sum(by_type.values())
 
+        logger.info(
+            "Scan complete for '%s'. Total: %d, Sensitive: %d, Clean: %d, Total PII: %d",
+            target_label,
+            total_files,
+            sensitive_count,
+            total_files - sensitive_count,
+            total_pii,
+        )
+
         return DataInventorySummary(
             scanner_version=__version__,
             scan_timestamp=datetime.now(timezone.utc),
-            target_path=str(target),
+            target_path=target_label,
             total_files_scanned=total_files,
             total_sensitive_files=sensitive_count,
             total_clean_files=total_files - sensitive_count,
@@ -272,6 +311,16 @@ class ScannerEngine:
             results=results,
         )
 
+    def scan_directory(
+        self,
+        target_path: str,
+        progress_callback: Callable[[str, int, int], None] | None = None,
+        exclude_patterns: list[str] | None = None,
+    ) -> DataInventorySummary:
+        """Recursively scan a path and compile a comprehensive DPDP data inventory summary."""
+        files = self.discover_files(target_path, exclude_patterns=exclude_patterns)
+        return self._scan_file_list(files, str(Path(target_path).resolve()), progress_callback)
+
     def scan_directories(
         self,
         target_paths: list[str],
@@ -279,48 +328,20 @@ class ScannerEngine:
         exclude_patterns: list[str] | None = None,
     ) -> DataInventorySummary:
         """Scan multiple directory targets and aggregate findings into a single summary."""
-        all_results: list[FileScanResult] = []
-        by_category: dict[str, int] = defaultdict(int)
-        by_type: dict[str, int] = defaultdict(int)
-        high_risk_files: list[str] = []
-        stale_1y = 0
-        stale_3y = 0
+        all_files: list[Path] = []
         skipped_targets: list[str] = []
 
         for path in target_paths:
             try:
-                sub_summary = self.scan_directory(path, progress_callback, exclude_patterns)
-                all_results.extend(sub_summary.results)
-                for k, v in sub_summary.by_category.items():
-                    by_category[k] += v
-                for k, v in sub_summary.by_type.items():
-                    by_type[k] += v
-                high_risk_files.extend(sub_summary.high_risk_files)
-                stale_1y += sub_summary.stale_files_over_1y
-                stale_3y += sub_summary.stale_files_over_3y
-                if sub_summary.skipped_targets:
-                    skipped_targets.extend(sub_summary.skipped_targets)
+                found = self.discover_files(path, exclude_patterns=exclude_patterns)
+                for f in found:
+                    if f not in all_files:
+                        all_files.append(f)
             except Exception as e:
                 skipped_targets.append(f"{path}: {e}")
                 continue
 
-        total_files = len(all_results)
-        sensitive_count = sum(1 for r in all_results if r.is_sensitive)
-        total_pii = sum(by_type.values())
+        summary = self._scan_file_list(all_files, ", ".join(target_paths), progress_callback)
+        summary.skipped_targets = skipped_targets
+        return summary
 
-        return DataInventorySummary(
-            scanner_version=__version__,
-            scan_timestamp=datetime.now(timezone.utc),
-            target_path=", ".join(target_paths),
-            total_files_scanned=total_files,
-            total_sensitive_files=sensitive_count,
-            total_clean_files=total_files - sensitive_count,
-            total_pii_instances=total_pii,
-            by_category=dict(by_category),
-            by_type=dict(by_type),
-            high_risk_files=high_risk_files,
-            stale_files_over_1y=stale_1y,
-            stale_files_over_3y=stale_3y,
-            results=all_results,
-            skipped_targets=skipped_targets,
-        )

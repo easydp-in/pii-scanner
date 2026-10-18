@@ -113,3 +113,47 @@ def test_cli_report_error(capsys: object) -> None:
         code3 = run_cli(["--report-issue"])
         assert code3 == 0
         mock_open2.assert_called_once_with("https://github.com/easydp-in/pii-scanner/issues/new")
+
+
+def test_cli_scan_creates_log_file(tmp_path: Path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "test.csv").write_text("Name,Phone\nAlice,9876543210\n", encoding="utf-8")
+    out_dir = tmp_path / "reports"
+
+    code = run_cli(["scan", str(data_dir), "-o", str(out_dir), "-q"])
+    assert code == 0
+
+    log_path = out_dir / "scanner.log"
+    assert log_path.exists()
+    log_content = log_path.read_text(encoding="utf-8")
+    assert "EasyDP PII Scanner logging initialized" in log_content
+    assert "test.csv" in log_content
+    assert "Scan complete" in log_content
+
+
+def test_cli_scan_custom_log_file(tmp_path: Path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "sample.txt").write_text("Contact me at info@example.com", encoding="utf-8")
+    custom_log = tmp_path / "logs" / "custom_scan.log"
+
+    code = run_cli(["scan", str(data_dir), "--log-file", str(custom_log), "-q"])
+    assert code == 0
+
+    assert custom_log.exists()
+    log_text = custom_log.read_text(encoding="utf-8")
+    assert "sample.txt" in log_text
+
+
+def test_cli_scan_with_progress_and_completion_banner(tmp_path: Path) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "doc.txt").write_text("Sample text with no PII", encoding="utf-8")
+    out_dir = tmp_path / "out"
+
+    # Non-quiet mode exercises Progress bar and print_completion_banner
+    code = run_cli(["scan", str(data_dir), "-o", str(out_dir)])
+    assert code == 0
+    assert (out_dir / "scan_report.html").exists()
+    assert (out_dir / "scanner.log").exists()

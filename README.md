@@ -278,9 +278,15 @@ easydp-scan scan "D:\Client_Accounts" --format html --output-dir ./reports
 # Exclude temporary or build directories:
 easydp-scan scan . --exclude "node_modules,temp_archive"
 
+# Custom log file path for troubleshooting:
+easydp-scan scan . --log-file ./reports/scanner.log
+
 # Quiet mode for automated CI/CD pipelines:
 easydp-scan scan ./data -f json -q
 ```
+
+> **Real-Time Analysis & Clean Terminal Logging**: The scanner includes a live progress bar tracking file analysis across directories. Raw library warnings (from `openpyxl`, `pypdf`, etc.) are cleanly suppressed from the terminal and routed to `reports/scanner.log` for troubleshooting. Clickable `file://` hyperlinks are printed upon completion for instant one-click report access.
+
 
 ### 2. Audit Local Tally ERP
 Ensure Tally ERP 9 or Tally Prime is running on your machine (ODBC/HTTP port 9000 enabled):
