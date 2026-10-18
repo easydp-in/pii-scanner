@@ -22,10 +22,14 @@ CHOICE="${CHOICE:-1}"
 # Locate binary
 if [ -f "${DIR}/easydp-scan-macos-universal" ]; then
   BIN="${DIR}/easydp-scan-macos-universal"
-elif [ -f "${DIR}/pii-scanner-darwin-universal" ]; then
-  BIN="${DIR}/pii-scanner-darwin-universal"
+elif [ -f "${DIR}/../MacOS/easydp-scan" ]; then
+  BIN="${DIR}/../MacOS/easydp-scan"
+elif [ -f "${DIR}/../MacOS/easydp-scan-macos-universal" ]; then
+  BIN="${DIR}/../MacOS/easydp-scan-macos-universal"
 elif [ -f "${DIR}/easydp-scan" ]; then
   BIN="${DIR}/easydp-scan"
+elif [ -f "${DIR}/pii-scanner-darwin-universal" ]; then
+  BIN="${DIR}/pii-scanner-darwin-universal"
 elif command -v easydp-scan >/dev/null 2>&1; then
   BIN="easydp-scan"
 else

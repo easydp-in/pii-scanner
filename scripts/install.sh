@@ -50,15 +50,28 @@ EOF
     chmod +x "${INSTALL_DIR}/${BIN_NAME}"
   fi
 else
-  echo "=> Downloading pre-compiled standalone binary for ${OS}-${ARCH_TAG}..."
-  BINARY_URL="https://github.com/${REPO}/releases/latest/download/pii-scanner-${OS}-${ARCH_TAG}"
+  echo "=> Downloading pre-compiled standalone binary for ${OS}..."
+  if [ "${OS}" = "darwin" ]; then
+    BINARY_URL="https://github.com/${REPO}/releases/latest/download/easydp-scan-macos-universal"
+  else
+    BINARY_URL="https://github.com/${REPO}/releases/latest/download/easydp-scan-linux-${ARCH_TAG}"
+  fi
   curl -fsSL "${BINARY_URL}" -o "${INSTALL_DIR}/${BIN_NAME}" || true
   chmod +x "${INSTALL_DIR}/${BIN_NAME}" 2>/dev/null || true
+fi
+
+# Attempt to link into /usr/local/bin for instant system-wide CLI access
+if [ -w "/usr/local/bin" ] 2>/dev/null; then
+  ln -sf "${INSTALL_DIR}/${BIN_NAME}" "/usr/local/bin/${BIN_NAME}" 2>/dev/null || true
 fi
 
 echo ""
 echo "============================================================"
 echo "  Installation Complete!"
-echo "  Run a scan using:"
-echo "    easydp-scan scan ./my-files --format html,json"
+echo "  Binary location: ${INSTALL_DIR}/${BIN_NAME}"
+echo ""
+echo "  Run an audit using:"
+echo "    ${BIN_NAME} scan . --format html,json"
+echo "  Or if ${INSTALL_DIR} is not in PATH:"
+echo "    ~/.local/bin/${BIN_NAME} scan ."
 echo "============================================================"
