@@ -31,6 +31,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
+          $env:PYTHONIOENCODING = "utf-8"
           pip install .
           easydp-scan --version
           easydp-scan scan ./sample_data/ --format html,json,cli --output-dir ./smoke_out

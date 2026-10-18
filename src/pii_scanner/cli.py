@@ -17,10 +17,19 @@ from pii_scanner.reporters.html_rep import HTMLReporter
 from pii_scanner.reporters.json_rep import JSONReporter
 
 
+def configure_windows_terminal() -> None:
+    """Ensure Windows terminal handles UTF-8 characters without cp1252 charmap crashes."""
+    if sys.platform == "win32":
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="easydp-scan",
-        description="EasyDP Local PII Scanner — Enterprise-grade, 100% offline DPDP compliance scanner.",
+        description="EasyDP Local PII Scanner - Enterprise-grade, 100% offline DPDP compliance scanner.",
         epilog=f"Learn more at {__homepage__} | Powered by EasyDP.in",
     )
     parser.add_argument(
@@ -111,6 +120,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 def run_cli(args: list[str] | None = None) -> int:
     """Execute CLI parser with given arguments, returning exit code."""
+    configure_windows_terminal()
     parser = create_parser()
 
     if args is None:

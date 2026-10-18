@@ -22,7 +22,7 @@ EASYDP_BANNER = """[bold cyan]
 [dim]Enterprise-grade, 100% offline DPDP compliance scanner | [underline]https://easydp.in[/underline][/dim]
 """
 
-DISCLAIMER_TEXT = """[bold yellow]⚠️  LEGAL & COMPLIANCE DISCLAIMER[/bold yellow]
+DISCLAIMER_TEXT = """[bold yellow][!] LEGAL & COMPLIANCE DISCLAIMER[/bold yellow]
 [dim]1. NOT LEGAL ADVICE: This automated scanner assists with information governance under India's
    DPDP Act, 2023. It does not constitute legal counsel or a statutory compliance audit.
 2. USER AUTHORIZATION: The operator certifies lawful authority to scan target paths.
@@ -34,19 +34,19 @@ class ConsoleReporter:
     """Renders formatted terminal output using Rich with EasyDP branding."""
 
     def __init__(self, console: Console | None = None) -> None:
-        self.console = console or Console()
+        self.console = console or Console(safe_box=True)
 
     def render_summary(self, summary: DataInventorySummary) -> str:
         """Render complete summary to string (for testing and logging) and prints it."""
         buf = StringIO()
-        render_console = Console(file=buf, force_terminal=False, color_system=None)
+        render_console = Console(file=buf, force_terminal=False, color_system=None, safe_box=True)
 
         # 1. EasyDP Banner & Disclaimer
         render_console.print(EASYDP_BANNER)
         render_console.print(Panel(DISCLAIMER_TEXT, border_style="yellow"))
 
         # 2. Key Metrics Overview Table
-        overview_table = Table(title="📊 Scan Overview & DPDP Metrics", border_style="cyan")
+        overview_table = Table(title="Scan Overview & DPDP Metrics", border_style="cyan")
         overview_table.add_column("Metric", style="bold")
         overview_table.add_column("Value", style="green")
 
@@ -72,7 +72,7 @@ class ConsoleReporter:
         # 3. Data Ownership Breakdown by Type
         if summary.by_type:
             types_table = Table(
-                title="🏷️  Data Ownership Breakdown (Types & Quantities)", border_style="blue"
+                title="Data Ownership Breakdown (Types & Quantities)", border_style="blue"
             )
             types_table.add_column("PII Data Type", style="bold")
             types_table.add_column("Quantity Found", justify="right")
@@ -91,7 +91,7 @@ class ConsoleReporter:
         sensitive_results = [r for r in summary.results if r.is_sensitive]
         if sensitive_results:
             files_table = Table(
-                title="📁 Sensitive Files & Findings Details", border_style="magenta"
+                title="Sensitive Files & Findings Details", border_style="magenta"
             )
             files_table.add_column("File Name", style="bold")
             files_table.add_column("PII Count", justify="right")

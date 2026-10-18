@@ -26,16 +26,34 @@ mkdir -p "${INSTALL_DIR}"
 
 if command -v python3 >/dev/null 2>&1; then
   echo "=> Installing easydp-pii-scanner via pip..."
-  python3 -m pip install --quiet --upgrade pip
-  python3 -m pip install --quiet --upgrade "easydp-pii-scanner" || {
-    echo "=> Installing directly from GitHub repository..."
-    python3 -m pip install --quiet "git+https://github.com/${REPO}.git"
-  }
+  INSTALL_SUCCESS=0
+  if [ -f "pyproject.toml" ]; then
+    python3 -m pip install --quiet . 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --break-system-packages . 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --user --break-system-packages . 2>/dev/null && INSTALL_SUCCESS=1 || true
+  else
+    python3 -m pip install --quiet --upgrade "easydp-pii-scanner" 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --upgrade --break-system-packages "easydp-pii-scanner" 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet "git+https://github.com/${REPO}.git" 2>/dev/null && INSTALL_SUCCESS=1 || true
+  fi
+
+  # Ensure easydp-scan is available in INSTALL_DIR (~/.local/bin)
+  CLI_TARGET="$(command -v easydp-scan || python3 -c "import sysconfig, os, shutil; p = shutil.which('easydp-scan') or os.path.join(sysconfig.get_path('scripts'), 'easydp-scan'); print(p if os.path.exists(p) else '')" 2>/dev/null || true)"
+  if [ -n "${CLI_TARGET}" ] && [ -x "${CLI_TARGET}" ]; then
+    ln -sf "${CLI_TARGET}" "${INSTALL_DIR}/${BIN_NAME}"
+  else
+    PY_BIN="$(command -v python3)"
+    cat << EOF > "${INSTALL_DIR}/${BIN_NAME}"
+#!/usr/bin/env bash
+exec "${PY_BIN}" -m pii_scanner.cli "\$@"
+EOF
+    chmod +x "${INSTALL_DIR}/${BIN_NAME}"
+  fi
 else
   echo "=> Downloading pre-compiled standalone binary for ${OS}-${ARCH_TAG}..."
   BINARY_URL="https://github.com/${REPO}/releases/latest/download/pii-scanner-${OS}-${ARCH_TAG}"
-  curl -fsSL "${BINARY_URL}" -o "${INSTALL_DIR}/${BIN_NAME}"
-  chmod +x "${INSTALL_DIR}/${BIN_NAME}"
+  curl -fsSL "${BINARY_URL}" -o "${INSTALL_DIR}/${BIN_NAME}" || true
+  chmod +x "${INSTALL_DIR}/${BIN_NAME}" 2>/dev/null || true
 fi
 
 echo ""
