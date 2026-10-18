@@ -105,6 +105,49 @@
 
 ---
 
+## How It Works
+
+`easydp-scan` executes an air-gapped 5-stage data discovery and governance pipeline directly on your CPU without third-party services:
+
+```mermaid
+flowchart LR
+    A["Target Paths"] --> B["1. Discovery & Routing"]
+    B --> C["2. Streaming Extraction"]
+    C --> D["3. Checksum Validation"]
+    D --> E["4. Safe Redaction"]
+    E --> F["5. Offline Reporting"]
+```
+
+### 1. Local Target Discovery & Registry Routing
+- **Directory Pruning**: Recursively traverses targeted paths while automatically filtering out developer caches (`.git`, `node_modules`, `venv`, `.pytest_cache`) and system root directories (`C:\Windows`, `/System`, `/Library`, `/proc`).
+- **Pluggable Extractor Registry**: The `ExtractorRegistry` routes files by extension (`.docx`, `.pdf`, `.xlsx`, `.odt`, `.csv`, `.txt`, `.log`, etc.) to dedicated streaming extractors with zero redundant validator allocations.
+
+### 2. In-Memory Streaming & Security Guardrails
+- **Resource-Bounded Parsing**: Delimited files (CSV/TSV) and logs are read line-by-line via Python generators without buffering entire gigabyte datasets into memory.
+- **Decompression Bomb Defense**: Office XML archives (`.docx`, `.odt`) are subject to strict safety thresholds (`MAX_UNCOMPRESSED_ENTRY_SIZE = 50MB`, `MAX_TOTAL_UNCOMPRESSED_SIZE = 150MB`) to prevent denial-of-service memory exhaustion.
+- **Localhost-Only Loopback Connector**: The Tally connector operates strictly over loopback (`127.0.0.1`, `localhost`, `::1`), forbidding any remote host communication to guarantee zero-telemetry and prevent SSRF attacks.
+
+### 3. Dual-Tier Mathematical & Statutory Verification
+Unlike naive regex tools that trigger false alarms on every 12-digit transaction ID or phone timestamp, `easydp-scan` uses statutory validation rules:
+- **Aadhaar Numbers**: Validated via UIDAI's **Verhoeff Dihedral ($D_5$) checksum**, catching 100% of single-digit errors and consecutive transpositions, while enforcing that numbers cannot start with `0` or `1`.
+- **Goods & Services Tax (GSTIN)**: Checks state jurisdiction codes (01–37, 97, 99), verifies the embedded 10-character PAN, and validates the 15th **Mod-36 check digit**.
+- **Permanent Account Number (PAN)**: Enforces statutory format and decodes the 4th character legal entity classification (`P`=Individual, `C`=Company, `F`=Firm/LLP, `T`=Trust, `H`=HUF).
+- **Communication & Banking**: Indian National Numbering Plan E.164 boundary isolation for mobile numbers, RBI 11-character IFSC format, and UPI VPAs with web domain exclusions.
+
+### 4. Zero-Plaintext Redaction & DIM-01 Categorization
+- **Instant Masking**: Raw values are immediately transformed into statutory audit-compliant previews (`XXXX-XXXX-1234`, `XXXXX1234F`, `27XXXXX9603R1ZN`) before entering memory summaries or logs.
+- **Data Inventory Mapping (DIM-01)**: Findings are aggregated into statutory DPDP categories:
+  - *Identity & Official Identifiers*: Aadhaar, PAN
+  - *Financial & Banking Details*: GSTIN, IFSC, UPI
+  - *Contact & Communications*: Mobile numbers, Email addresses
+
+### 5. Audit Intelligence & Zero-Egress Reporting
+- **Retention Staleness Risk**: Detects files untouched for >1 year and >3 years to flag data retention compliance violations under Section 8(7) of the DPDP Act.
+- **High-Risk Exposure Analysis**: Automatically identifies sensitive files stored in exposed user folders (e.g. `Downloads/`, `Desktop/`) or high-density files with $\ge 5$ findings.
+- **Multi-Format Reports**: Generates self-contained interactive HTML dashboards (`reports/scan_report.html`) and structured JSON inventory catalogs (`reports/scan_report.json`). Zero raw data ever leaves your computer.
+
+---
+
 ## Installation
 
 Choose the installation method suited for your platform:
