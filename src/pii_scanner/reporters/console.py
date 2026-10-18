@@ -9,15 +9,15 @@ from rich.table import Table
 from pii_scanner import __issues_url__
 from pii_scanner.core.models import DataInventorySummary
 
-EASYDP_BANNER = """[bold cyan]
-  ______                     _____  _____
- |  ____|                   |  __ \\|  __ \\
- | |__   __ _ ___ _   _     | |  | | |__) |
- |  __| / _` / __| | | |    | |  | |  ___/
- | |___| (_| \\__ \\ |_| |    | |__| | |
- |______\\__,_|___/\\__, |    |_____/|_|
-                   __/ |  .in
-                  |___/   Local PII Scanner
+EASYDP_BANNER = r"""[bold cyan]
+  ______               _____  _____
+ |  ____|             |  __ \|  __ \
+ | |__   __ _ ___ _   | |  | | |__) |
+ |  __| / _` / __| | || |  | |  ___/
+ | |___| (_| \__ \ |_|| |__| | |
+ |______\__,_|___/\__,|_____/|_|
+                  __/ |  .in
+                 |___/   Local PII Scanner
 [/bold cyan]
 [bold]EasyDP Local PII Scanner[/bold]
 [dim]Enterprise-grade, 100% offline DPDP compliance scanner | [underline]https://easydp.in[/underline][/dim]

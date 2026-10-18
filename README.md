@@ -304,14 +304,14 @@ EasyDP Local PII Scanner generates three distinct reporting formats locally with
 When executed from the command line, the scanner renders an EasyDP branded ASCII banner, a DPDP compliance overview, a data ownership breakdown by type, and a location registry of sensitive files:
 
 ```text
-  ______                     _____  _____
- |  ____|                   |  __ \|  __ \
- | |__   __ _ ___ _   _     | |  | | |__) |
- |  __| / _` / __| | | |    | |  | |  ___/
- | |___| (_| \__ \ |_| |    | |__| | |
- |______\__,_|___/\__, |    |_____/|_|
-                   __/ |  .in
-                  |___/   Local PII Scanner
+  ______               _____  _____
+ |  ____|             |  __ \|  __ \
+ | |__   __ _ ___ _   | |  | | |__) |
+ |  __| / _` / __| | || |  | |  ___/
+ | |___| (_| \__ \ |_|| |__| | |
+ |______\__,_|___/\__,|_____/|_|
+                  __/ |  .in
+                 |___/   Local PII Scanner
 
 EasyDP Local PII Scanner
 Enterprise-grade, 100% offline DPDP compliance scanner | https://easydp.in
