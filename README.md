@@ -122,6 +122,28 @@ pipx run easydp-pii-scanner scan .
 pip install easydp-pii-scanner
 ```
 
+### Method 6: One-Click Prompt for AI Agents & LLMs 🤖
+*(Claude Code, Cursor Composer, GitHub Copilot, Gemini CLI, Antigravity, Roo, Aider)*
+
+Copy and paste the block below directly into your AI coding assistant or terminal:
+
+```text
+Please install and execute the EasyDP Local PII Scanner on this machine:
+
+1. Detect the operating system (Windows, macOS, or Linux) and active shell environment.
+2. Install the scanner using the fastest available method:
+   - If Python 3.10+ is available: `pip install git+https://github.com/easydp-in/pii-scanner.git` (or `pip install easydp-pii-scanner`)
+   - If Node.js is present: run directly with `npx @easydp/pii-scanner scan .`
+   - On macOS/Linux terminal: `curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash`
+   - On Windows PowerShell: `irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex`
+3. Verify the installation: `easydp-scan --version`
+4. Run a local DPDP compliance scan on the current project or workspace:
+   `easydp-scan scan . --format html,json,cli --output-dir ./reports`
+   (Or use `easydp-scan scan --user-dirs --output-dir ./reports` to scan Downloads, Desktop, and Documents)
+5. Report the location of `./reports/scan_report.html` and summarize the PII counts discovered.
+Important: EasyDP Local PII Scanner is 100% offline with zero telemetry. Never transmit, export, or send scanned file contents or reports to any remote server or external API.
+```
+
 ---
 
 ## Multi-OS & Installation Coverage in CI/CD
