@@ -24,7 +24,7 @@
   <img src="https://img.shields.io/badge/OS-Linux-FCC624?logo=linux&logoColor=black" alt="Linux"/>
   <img src="https://img.shields.io/badge/Python-3.10%20|%203.11%20|%203.12%20|%203.13-3776AB?logo=python&logoColor=white" alt="Python Support"/>
   <a href="https://pypi.org/project/easydp-pii-scanner/"><img src="https://img.shields.io/pypi/v/easydp-pii-scanner.svg?color=green" alt="PyPI Version"/></a>
-  <a href="https://www.npmjs.com/package/@easydp/pii-scanner"><img src="https://img.shields.io/npm/v/@easydp/pii-scanner.svg?color=red" alt="NPM Version"/></a>
+  <a href="https://www.npmjs.com/package/easydp-pii-scanner"><img src="https://img.shields.io/npm/v/easydp-pii-scanner.svg?color=red" alt="NPM Version"/></a>
   <a href="https://easydp.in"><img src="https://img.shields.io/badge/Privacy-100%25%20Offline%20(Zero%20Egress)-10B981" alt="Zero Egress"/></a>
   <a href="https://easydp-in.github.io/pii-scanner/"><img src="https://img.shields.io/badge/Site-GitHub%20Pages-blue?logo=github&logoColor=white" alt="Live Site"/></a>
 </p>
@@ -175,24 +175,21 @@ flowchart TD
 
 Choose the installation method suited for your platform:
 
-### Method 1: Pre-Compiled Standalone Binaries (Recommended for Windows SMBs & CAs)
-Requires **zero Python or Node installation**. Download the pre-compiled executable from [GitHub Releases](https://github.com/easydp-in/pii-scanner/releases):
+### Method 1: Pre-Compiled Standalone Binaries & Mac App (Recommended for SMBs & CAs)
+Requires **zero Python or Node installation**. Download from [GitHub Releases](https://github.com/easydp-in/pii-scanner/releases/latest):
+- **macOS App & Launcher**: `EasyDP-Scanner-macOS.zip` (Unzip and launch **`EasyDP Scanner.app`** or double-click `easydp-scan.command`!)
+- **macOS Universal CLI**: `easydp-scan-macos-universal` (Apple Silicon & Intel)
 - **Windows**: `easydp-scan-windows-amd64.exe` (run from PowerShell/CMD)
-- **macOS (Double-Clickable)**: `easydp-scan-macos.zip` (Unzip and double-click `easydp-scan.command` in Finder!)
-- **macOS (CLI Binary)**: `easydp-scan-macos-universal` (Apple Silicon & Intel)
 - **Linux**: `easydp-scan-linux-amd64`
 
 > [!TIP]
-> **Running on macOS (Double-Click vs Terminal)**:
-> - **Option A (Finder Double-Click)**: Download `easydp-scan-macos.zip`, unzip, and double-click `easydp-scan.command`. macOS automatically opens Terminal and runs the interactive scan.
-> - **Option B (Terminal CLI)**:
+> **Running on macOS**:
+> - **Option A (Desktop App)**: Download `EasyDP-Scanner-macOS.zip`, unzip, and launch **`EasyDP Scanner.app`** (or drag to `/Applications`).
+> - **Option B (Finder Double-Click)**: Double-click `easydp-scan.command` to run an interactive terminal audit.
+> - **Option C (Terminal CLI)**:
 >   ```bash
 >   chmod +x ./easydp-scan-macos-universal
 >   ./easydp-scan-macos-universal scan .
->   ```
-> - **Gatekeeper Alert**: If macOS blocks execution because the file was downloaded via browser, either click *"Allow Anyway"* in **System Settings &rarr; Privacy & Security**, or run:
->   ```bash
->   xattr -d com.apple.quarantine ./easydp-scan-macos-universal
 >   ```
 
 ### Method 2: One-Line Install Script
@@ -206,28 +203,30 @@ curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/
 irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex
 ```
 
-### Method 3: Homebrew (macOS & Linux)
+### Method 3: NPM / NPX (Zero-Install Runner)
+```bash
+# Run instantly with zero installation via npx:
+npx easydp-pii-scanner scan ./my-data
+
+# Or install globally:
+npm install -g easydp-pii-scanner
+easydp-scan scan . --format html,json
+```
+
+### Method 4: Python / Pip / Pipx
+```bash
+# Standard installation from PyPI:
+pip install easydp-pii-scanner
+easydp-scan scan . --format html,json
+
+# Or isolated CLI execution via pipx:
+pipx run easydp-pii-scanner scan .
+```
+
+### Method 5: Homebrew (macOS & Linux)
 ```bash
 brew tap easydp-in/tap
 brew install easydp-scan
-```
-
-### Method 4: NPM / NPX (JavaScript & Web Developers)
-```bash
-# Run instantly without installing:
-npx @easydp/pii-scanner scan ./my-data
-
-# Or install globally:
-npm install -g @easydp/pii-scanner
-```
-
-### Method 5: Python / Pip / Pipx
-```bash
-# Isolated CLI installation via pipx:
-pipx run easydp-pii-scanner scan .
-
-# Or via standard pip:
-pip install easydp-pii-scanner
 ```
 
 ### Method 6: One-Click Prompt for AI Agents & LLMs 🤖
@@ -240,8 +239,8 @@ Please install and execute the EasyDP Local PII Scanner on this machine:
 
 1. Detect the operating system (Windows, macOS, or Linux) and active shell environment.
 2. Install the scanner using the fastest available method:
-   - If Python 3.10+ is available: `pip install git+https://github.com/easydp-in/pii-scanner.git` (or `pip install easydp-pii-scanner`)
-   - If Node.js is present: run directly with `npx @easydp/pii-scanner scan .`
+   - If Python 3.10+ is available: `pip install easydp-pii-scanner`
+   - If Node.js is present: run directly with `npx easydp-pii-scanner scan .`
    - On macOS/Linux terminal: `curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash`
    - On Windows PowerShell: `irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex`
 3. Verify the installation: `easydp-scan --version`

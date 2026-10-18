@@ -710,7 +710,7 @@
         </div>
       </div>
       <div style="margin-top: 14px; font-size: 12px; color: #94A3B8; text-align: center;">
-        💡 <strong>macOS Tip:</strong> On Mac, download <code>easydp-scan-macos.zip</code> and double-click <code>easydp-scan.command</code> to run in Terminal. If using CLI binary, run <code>chmod +x easydp-scan-macos-universal</code>.
+        💡 <strong>macOS Tip:</strong> On Mac, download <code>EasyDP-Scanner-macOS.zip</code> to launch <strong>EasyDP Scanner.app</strong> (or double-click <code>easydp-scan.command</code>). For CLI, run <code>npx easydp-pii-scanner scan .</code> or <code>pip install easydp-pii-scanner</code>.
       </div>
     </div>
   </section>
@@ -1007,9 +1007,9 @@
     const commands = {
       sh: "curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash",
       pwsh: "irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex",
-      pip: "pip install git+https://github.com/easydp-in/pii-scanner.git",
-      pipx: "pipx run --spec git+https://github.com/easydp-in/pii-scanner.git easydp-scan .",
-      npm: "npm i -g easydp-pii-scanner",
+      pip: "pip install easydp-pii-scanner",
+      pipx: "pipx run easydp-pii-scanner scan .",
+      npm: "npx easydp-pii-scanner scan .",
       llm: "Please install easydp-scan on this machine and audit current directory for DPDP PII with zero egress."
     };
 
