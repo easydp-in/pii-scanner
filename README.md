@@ -500,6 +500,14 @@ ruff check . && ruff format --check . && mypy src/
 
 ---
 
+## Free Compliance Resources & Guides
+
+- 📚 **DPDP Act Checklists & Implementation Guides**: [https://www.easydp.in/guides/](https://www.easydp.in/guides/)
+- 🌐 **EasyDP Platform**: [https://easydp.in](https://easydp.in)
+- 🐞 **Report Issues & False Alarms**: [GitHub Issues](https://github.com/easydp-in/pii-scanner/issues/new)
+
+---
+
 ## Contributing & License
 
 Contributions are welcome! Please follow [CONTRIBUTING.md](CONTRIBUTING.md) for conventional commits.

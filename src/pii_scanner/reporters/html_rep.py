@@ -3,7 +3,7 @@
 from html import escape
 from pathlib import Path
 
-from pii_scanner import __homepage__, __issues_url__, __version__
+from pii_scanner import __guides_url__, __homepage__, __issues_url__, __version__
 from pii_scanner.core.models import DataInventorySummary
 
 HTML_TEMPLATE = """<!DOCTYPE html>
@@ -111,6 +111,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 </div>
             </div>
             <div class="header-badges">
+                <a href="__GUIDES_URL__" target="_blank" class="badge" style="background:rgba(212, 169, 69, 0.15);color:var(--gold);text-decoration:none;border:1px solid var(--gold);">📚 Free Checklists &amp; Guides</a>
                 <span class="badge badge-offline">🔒 100% Offline (Zero Cloud Egress)</span>
                 <span class="badge badge-version">v__VERSION__</span>
                 <a href="__ISSUES_URL__" target="_blank" class="badge" style="background:#16293F;color:#E9776B;text-decoration:none;border:1px solid rgba(233, 119, 107, 0.4);">🐞 Report Error</a>
@@ -184,7 +185,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
         <div class="footer">
             Generated locally by <a href="__HOMEPAGE__" target="_blank">EasyDP.in</a> — India's Data Protection &amp; DPDP Compliance Platform.<br>
-            Scan Timestamp: __SCAN_TIMESTAMP__ UTC • <a href="__ISSUES_URL__" target="_blank">Report Error / Issue on GitHub</a>
+            📚 <a href="__GUIDES_URL__" target="_blank" style="color:var(--gold-deep); font-weight: 600;">Free DPDP Compliance Checklists &amp; Guides</a> • Scan Timestamp: __SCAN_TIMESTAMP__ UTC • <a href="__ISSUES_URL__" target="_blank">Report Error / Issue on GitHub</a>
         </div>
 
     </div>
@@ -276,6 +277,7 @@ class HTMLReporter:
             .replace("__CHART_ROWS__", chart_html)
             .replace("__TABLE_ROWS__", table_html)
             .replace("__ISSUES_URL__", str(__issues_url__))
+            .replace("__GUIDES_URL__", str(__guides_url__))
             .replace("__SCAN_TIMESTAMP__", summary.scan_timestamp.strftime("%Y-%m-%d %H:%M:%S"))
         )
 

@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from pii_scanner import __issues_url__
+from pii_scanner import __guides_url__, __issues_url__
 from pii_scanner.core.models import DataInventorySummary
 
 EASYDP_BANNER = r"""[bold cyan]
@@ -104,7 +104,9 @@ class ConsoleReporter:
 
             render_console.print(files_table)
 
+        guides_line = f"📚 [bold]Free DPDP Checklists & Compliance Guides:[/bold] [underline cyan][link={__guides_url__}]{__guides_url__}[/link][/underline cyan]"
         footer_line = f"[dim]Report false alarms, errors, or feedback: [underline]{__issues_url__}[/underline][/dim]"
+        render_console.print(guides_line)
         render_console.print(footer_line)
 
         output_str = buf.getvalue()
@@ -116,6 +118,7 @@ class ConsoleReporter:
             self.console.print(types_table)
         if sensitive_results:
             self.console.print(files_table)
+        self.console.print(guides_line)
         self.console.print(footer_line)
 
         return output_str

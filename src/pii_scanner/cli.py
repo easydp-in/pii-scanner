@@ -21,7 +21,7 @@ from rich.progress import (
     TimeElapsedColumn,
 )
 
-from pii_scanner import __homepage__, __issues_url__, __version__
+from pii_scanner import __guides_url__, __homepage__, __issues_url__, __version__
 from pii_scanner.core.engine import ScannerEngine
 from pii_scanner.core.logger import setup_scanner_logging
 from pii_scanner.extractors.tally import TallyConnector
@@ -191,6 +191,8 @@ def print_completion_banner(
         "[bold white]Ready to automate DPDP compliance, RoPA management & continuous data discovery?[/bold white]\n\n"
         "  🚀 [bold cyan]Sign up for the complete EasyDP Governance Platform:[/bold cyan]\n"
         "     [bold underline green][link=https://easydp.in]https://easydp.in[/link][/bold underline green]\n\n"
+        "  📚 [bold yellow]Free DPDP Compliance Checklists & Guides:[/bold yellow]\n"
+        f"     [bold underline cyan][link={__guides_url__}]{__guides_url__}[/link][/bold underline cyan]\n\n"
         "  [dim]• Automated Data Mapping & RoPA (Section 8)\n"
         "  • Continuous Database, Cloud & Endpoint Scanners\n"
         "  • Statutory DPDP Notice & Grievance Redressal[/dim]"
