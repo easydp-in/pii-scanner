@@ -14,14 +14,14 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: pii-scanner-linux-amd64
-            asset_name: pii-scanner-linux-amd64
+            artifact_name: easydp-scan-linux-amd64
+            asset_name: easydp-scan-linux-amd64
           - os: macos-latest
-            artifact_name: pii-scanner-darwin-universal
-            asset_name: pii-scanner-darwin-universal
+            artifact_name: easydp-scan-macos-universal
+            asset_name: easydp-scan-macos-universal
           - os: windows-latest
-            artifact_name: pii-scanner-windows-amd64.exe
-            asset_name: pii-scanner-windows-amd64.exe
+            artifact_name: easydp-scan-windows-amd64.exe
+            asset_name: easydp-scan-windows-amd64.exe
 
     steps:
       - name: Checkout Code
@@ -45,16 +45,19 @@ jobs:
             --clean \
             src/pii_scanner/cli.py
 
-      - name: Ad-Hoc Sign Binary (macOS Apple Silicon & Intel)
+      - name: Sign & Package macOS Launcher (Apple Silicon & Intel)
         if: runner.os == 'macOS'
         run: |
           codesign --force --deep -s - dist/${{ matrix.artifact_name }}
+          cp scripts/easydp-scan.command dist/easydp-scan.command
+          chmod +x dist/easydp-scan.command
+          cd dist && zip -r easydp-scan-macos.zip "${{ matrix.artifact_name }}" easydp-scan.command && cd ..
 
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
-          path: dist/${{ matrix.artifact_name }}
+          path: dist/*
 
   publish-release:
     name: Publish GitHub Release & Checksums

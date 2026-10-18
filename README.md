@@ -110,18 +110,24 @@
 Choose the installation method suited for your platform:
 
 ### Method 1: Pre-Compiled Standalone Binaries (Recommended for Windows SMBs & CAs)
-Requires **zero Python or Node installation**. Download the single executable from [GitHub Releases](https://github.com/easydp-in/pii-scanner/releases):
-- **Windows**: `pii-scanner-windows-amd64.exe`
-- **macOS**: `pii-scanner-darwin-universal` (Apple Silicon & Intel)
-- **Linux**: `pii-scanner-linux-amd64`
+Requires **zero Python or Node installation**. Download the pre-compiled executable from [GitHub Releases](https://github.com/easydp-in/pii-scanner/releases):
+- **Windows**: `easydp-scan-windows-amd64.exe` (run from PowerShell/CMD)
+- **macOS (Double-Clickable)**: `easydp-scan-macos.zip` (Unzip and double-click `easydp-scan.command` in Finder!)
+- **macOS (CLI Binary)**: `easydp-scan-macos-universal` (Apple Silicon & Intel)
+- **Linux**: `easydp-scan-linux-amd64`
 
-> [!NOTE]
-> **macOS Gatekeeper**: When downloading standalone binaries via a browser (Chrome/Safari), macOS sets a quarantine flag by default. To run it, either click **"Allow Anyway"** in **System Settings &rarr; Privacy & Security**, or run:
-> ```bash
-> xattr -d com.apple.quarantine ./pii-scanner-darwin-universal
-> chmod +x ./pii-scanner-darwin-universal
-> ./pii-scanner-darwin-universal scan .
-> ```
+> [!TIP]
+> **Running on macOS (Double-Click vs Terminal)**:
+> - **Option A (Finder Double-Click)**: Download `easydp-scan-macos.zip`, unzip, and double-click `easydp-scan.command`. macOS automatically opens Terminal and runs the interactive scan.
+> - **Option B (Terminal CLI)**:
+>   ```bash
+>   chmod +x ./easydp-scan-macos-universal
+>   ./easydp-scan-macos-universal scan .
+>   ```
+> - **Gatekeeper Alert**: If macOS blocks execution because the file was downloaded via browser, either click *"Allow Anyway"* in **System Settings &rarr; Privacy & Security**, or run:
+>   ```bash
+>   xattr -d com.apple.quarantine ./easydp-scan-macos-universal
+>   ```
 
 ### Method 2: One-Line Install Script
 **On macOS & Linux:**
