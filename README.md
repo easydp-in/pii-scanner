@@ -115,6 +115,14 @@ Requires **zero Python or Node installation**. Download the single executable fr
 - **macOS**: `pii-scanner-darwin-universal` (Apple Silicon & Intel)
 - **Linux**: `pii-scanner-linux-amd64`
 
+> [!NOTE]
+> **macOS Gatekeeper**: When downloading standalone binaries via a browser (Chrome/Safari), macOS sets a quarantine flag by default. To run it, either click **"Allow Anyway"** in **System Settings &rarr; Privacy & Security**, or run:
+> ```bash
+> xattr -d com.apple.quarantine ./pii-scanner-darwin-universal
+> chmod +x ./pii-scanner-darwin-universal
+> ./pii-scanner-darwin-universal scan .
+> ```
+
 ### Method 2: One-Line Install Script
 **On macOS & Linux:**
 ```bash
