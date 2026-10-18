@@ -33,7 +33,7 @@
 > ### ⚠️ Legal & Compliance Disclaimer
 > 1. **Not Legal Advice**: This software is an automated scanner for information governance and privacy risk assessment under India's Digital Personal Data Protection (DPDP) Act, 2023. It does **not** constitute legal advice, statutory audit certification, or an official audit guarantee.
 > 2. **User Authorization**: The operator certifies that they have lawful authority and consent to scan target files, drives, or accounting systems.
-> 3. **100% Local Guarantee**: Scans execute entirely on your machine. No raw files, names, Aadhaar numbers, PANs, or phone numbers are ever transmitted to any remote server.
+> 3. **100% Local Guarantee & No Automated Data Sharing**: Scans execute entirely on your machine. The scanner contains **zero telemetry, no background analytics, and no automated data sharing**. No files, metadata, or counts are ever automatically transmitted to EasyDP or any remote server.
 > 4. **Safe Masking**: In compliance with the Aadhaar Act regulations, all sensitive identifiers are masked (e.g., `XXXX-XXXX-1234`) across console logs and generated reports.
 >
 > *Read the full [DISCLAIMER.md](DISCLAIMER.md) before deployment.*
@@ -69,6 +69,11 @@
 - **Interactive HTML Dashboard**: Self-contained, responsive offline report with search box, filter pills, distribution charts, and masked previews.
 - **DPDP JSON Inventory**: Conforms to `@context: "https://easydp.in/schema/v1/pii-inventory.json"` for enterprise data catalogs.
 - **Rich Terminal Summary**: Instant command-line status with EasyDP ASCII banner and colored tables.
+
+### 4. Zero Telemetry & No Automated Data Sharing
+- **Complete Local Containment**: All scan counts, file inventories, and reports stay 100% on the local computer.
+- **No Background Syncing**: The scanner contains zero background sync agents, analytics beacons, or telemetry.
+- **Air-Gapped Operation**: Fully functional on completely disconnected or air-gapped systems with zero degradation.
 
 ---
 

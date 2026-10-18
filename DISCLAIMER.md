@@ -25,12 +25,13 @@ The developers, contributors, and copyright holders of this software disclaim an
 
 ---
 
-## 3. Offline Privacy Guarantee & Zero Data Egress
+## 3. Offline Privacy Guarantee — Zero Telemetry & No Automated Data Sharing
 
-EasyDP is engineered strictly on an **offline-first** architecture:
+EasyDP is engineered strictly on an **offline-first, zero-telemetry** architecture:
+- **No Automated Data Sharing**: The software contains **zero** background analytics, tracking beacons, automated sync mechanisms, or telemetry. No file contents, scan summaries, counts, or metadata are ever automatically transmitted to EasyDP servers or any third-party infrastructure.
 - **100% Local Execution**: File discovery, text extraction, checksum validation, and report generation execute entirely within the local host's memory and CPU.
-- **Zero Remote Transmission**: No file contents, file paths, customer names, Aadhaar numbers, PANs, phone numbers, or credentials are sent to any remote cloud or server.
-- **Masking Standard**: In accordance with the Aadhaar Act regulations and DPDP data minimization principles, sensitive values are strictly masked (e.g., `XXXX-XXXX-1234`) in console outputs and generated reports.
+- **Air-Gapped Operation**: You can unplug your internet cable or disconnect Wi-Fi; the scanner operates with full functionality in completely isolated, air-gapped environments.
+- **Masking Standard**: In accordance with the Aadhaar Act regulations and DPDP data minimization principles, sensitive values are strictly masked (e.g., `XXXX-XXXX-1234`) in console outputs and generated local reports.
 
 ---
 

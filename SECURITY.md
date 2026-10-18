@@ -8,11 +8,12 @@ EasyDP takes the security and privacy of this open-source scanner seriously. Bec
 | ------- | ------------------ |
 | 0.1.x   | :white_check_mark: |
 
-## Offline Guarantee & Zero-Egress Policy
+## Offline Guarantee, Zero-Egress & No Automated Data Sharing
 
-EasyDP Local PII Scanner is engineered with an uncompromising zero-egress policy:
-- No internet connection is required or attempted during standard scan execution.
-- We test each release with automated socket isolation assertions in our CI pipeline to ensure zero outbound connections.
+EasyDP Local PII Scanner is engineered with an uncompromising zero-egress, zero-telemetry policy:
+- **No Automated Data Sharing**: The scanner does not include any analytics beacons, remote telemetry, automated sync agents, or diagnostic collectors. No scan data or counts are transmitted automatically.
+- **Strictly Offline**: No internet connection is required or attempted during scan execution. The software can run in completely air-gapped systems.
+- **Automated Verification**: Every release is tested with automated socket isolation assertions in our CI pipeline to ensure zero outbound network connections occur during scanning.
 
 ## Reporting a Vulnerability
 
