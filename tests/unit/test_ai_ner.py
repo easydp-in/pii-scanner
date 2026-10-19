@@ -9,7 +9,8 @@ from pii_scanner.extractors.text_scanner import TextExtractor
 
 
 def test_local_edge_ner_availability() -> None:
-    assert LocalEdgeNER.is_available() is True
+    with patch("importlib.util.find_spec", return_value=MagicMock()):
+        assert LocalEdgeNER.is_available() is True
     with patch("importlib.util.find_spec", return_value=None):
         assert LocalEdgeNER.is_available() is False
 
