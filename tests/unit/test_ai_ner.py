@@ -120,3 +120,33 @@ def test_cli_ai_flag_wiring(tmp_path) -> None:  # type: ignore[no-untyped-def]
             ]
         )
         assert exit_code == 0
+
+
+def test_cli_ai_interactive_auto_install(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    test_file = tmp_path / "notes.txt"
+    test_file.write_text("Patient Vikram Sarabhai reports acute asthma.", encoding="utf-8")
+
+    with (
+        patch("sys.stdin.isatty", return_value=True),
+        patch("rich.console.Console.input", return_value="y"),
+        patch("subprocess.run") as mock_subproc,
+        patch("pii_scanner.ai.edge_ner.LocalEdgeNER") as MockNERClass,
+    ):
+        mock_subproc.return_value.returncode = 0
+        mock_instance = MockNERClass.return_value
+        MockNERClass.is_available.side_effect = [False, True, True]
+        mock_instance.predict_entities.return_value = []
+
+        exit_code = run_cli(
+            [
+                "scan",
+                str(tmp_path),
+                "--ai",
+                "-f",
+                "json",
+                "-o",
+                str(tmp_path / "out"),
+            ]
+        )
+        assert exit_code == 0
+        assert mock_subproc.called

@@ -262,22 +262,64 @@ def run_cli(args: list[str] | None = None) -> int:
 
         ai_ner = None
         if getattr(parsed, "use_ai", False):
+            import importlib
+            import subprocess
+
             from pii_scanner.ai.edge_ner import LocalEdgeNER
 
             if not LocalEdgeNER.is_available():
-                console.print(
-                    "\n[bold red]✖ Pass 2 Edge AI dependencies not found.[/bold red]\n\n"
-                    "  To enable deep local AI extraction (unstructured names, addresses, health data),\n"
-                    "  please install the optional AI extra:\n\n"
-                    '    [bold green]pip install "easydp-pii-scanner[ai]"[/bold green]\n'
-                    "  or:\n"
-                    "    [bold green]pip install gliner protobuf[/bold green]\n"
-                )
-                return 1
+                installed = False
+                if sys.stdin.isatty() and not parsed.quiet:
+                    console.print(
+                        "\n[bold yellow]Pass 2 Edge AI dependencies (gliner, protobuf) are not yet installed in this Python environment.[/bold yellow]"
+                    )
+                    console.print(f"[dim]Target Python: {sys.executable}[/dim]\n")
+                    try:
+                        choice = (
+                            console.input(
+                                "[bold cyan]Would you like to auto-install them now via pip? [Y/n]: [/bold cyan]"
+                            )
+                            .strip()
+                            .lower()
+                        )
+                    except (EOFError, KeyboardInterrupt):
+                        return 1
+
+                    if choice in ("", "y", "yes"):
+                        console.print(
+                            '\n[dim]Installing: pip install "easydp-pii-scanner[ai]"...[/dim]'
+                        )
+                        res = subprocess.run(
+                            [sys.executable, "-m", "pip", "install", "easydp-pii-scanner[ai]"]
+                        )
+                        if res.returncode != 0:
+                            console.print("[dim]Retrying: pip install gliner protobuf...[/dim]")
+                            res = subprocess.run(
+                                [sys.executable, "-m", "pip", "install", "gliner", "protobuf"]
+                            )
+                        if res.returncode == 0:
+                            importlib.invalidate_caches()
+                            installed = LocalEdgeNER.is_available()
+                            if installed:
+                                console.print(
+                                    "[bold green]✔ AI dependencies installed successfully![/bold green]\n"
+                                )
+
+                if not installed:
+                    console.print(
+                        "\n[bold red]✖ Pass 2 Edge AI dependencies not found.[/bold red]\n\n"
+                        "  To enable deep local AI extraction (unstructured names, addresses, health data),\n"
+                        "  please install the optional AI extra:\n\n"
+                        r'    [bold green]pip install "easydp-pii-scanner\[ai]"[/bold green]' + "\n"
+                        "  or:\n"
+                        "    [bold green]pip install gliner protobuf[/bold green]\n"
+                    )
+                    return 1
 
             if not parsed.quiet:
                 with console.status(
-                    "[bold cyan]Initializing Pass 2 Edge AI model (urchade/gliner_small-v2.1)...[/bold cyan]",
+                    "[bold cyan]Initializing Pass 2 Edge AI model (urchade/gliner_small-v2.1)...[/bold cyan]\n"
+                    "[dim](First run downloads ~150MB local model weights to ~/.cache/huggingface/hub/)[/dim]",
                     spinner="dots",
                 ):
                     ai_ner = LocalEdgeNER()
