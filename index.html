@@ -233,14 +233,60 @@
       display: flex;
       justify-content: center;
       gap: 16px;
-      margin-bottom: 48px;
+      margin-bottom: 32px;
       flex-wrap: wrap;
+    }
+    .mode-selector-bar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(11, 19, 32, 0.85);
+      border: 1px solid var(--navy-line-strong);
+      padding: 5px 8px;
+      border-radius: 30px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+    .mode-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--on-dark-3);
+      padding-left: 10px;
+      padding-right: 6px;
+      text-transform: uppercase;
+    }
+    .mode-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--on-dark-2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mode-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .mode-btn.active {
+      background: var(--gold);
+      color: #0A1626;
+      border-color: var(--gold);
+      font-weight: 700;
+      box-shadow: 0 2px 10px rgba(212, 169, 69, 0.35);
     }
 
     /* Terminal Box */
     .terminal-wrapper {
       max-width: 820px;
-      margin: 0 auto 60px;
+      margin: 0 auto 30px;
       background: var(--code-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
@@ -494,6 +540,8 @@
     .chip-pan { background: rgba(30, 138, 95, 0.15); color: var(--green-dark); border: 1px solid rgba(30, 138, 95, 0.3); }
     .chip-gstin { background: rgba(185, 138, 46, 0.15); color: #E0B65A; border: 1px solid rgba(185, 138, 46, 0.3); }
     .chip-phone { background: rgba(70, 86, 107, 0.25); color: #A9B8CF; border: 1px solid rgba(70, 86, 107, 0.4); }
+    .chip-ai { background: rgba(147, 51, 234, 0.15); color: #C084FC; border: 1px solid rgba(147, 51, 234, 0.35); }
+    .chip-health { background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.35); }
     .risk-badge {
       background: rgba(233, 119, 107, 0.15);
       color: var(--error-dark);
@@ -636,9 +684,10 @@
           <span class="brand-wordmark">Easy<span class="gold">DP</span></span>
           <span class="brand-tagline">Local PII Scanner</span>
         </span>
-        <span class="brand-badge">v0.1.8 Open Source</span>
+        <span class="brand-badge">v0.2.4 Open Source</span>
       </a>
       <div class="nav-links">
+        <a href="#modes">Scan Modes</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#features">Features</a>
         <a href="#formats" class="nav-secondary">Documents</a>
@@ -672,6 +721,13 @@
         <a href="javascript:void(0)" onclick="switchTab('sh')">Linux</a> • 
         <a href="javascript:void(0)" onclick="switchTab('pip')">Python (pip)</a>
       </p>
+
+      <!-- Mode Selector Bar -->
+      <div class="mode-selector-bar">
+        <span class="mode-label">Engine Mode:</span>
+        <button class="mode-btn active" id="mode-normal-btn" onclick="setMode('normal')">⚡ Normal Mode (Instant)</button>
+        <button class="mode-btn" id="mode-ai-btn" onclick="setMode('ai')">🧠 Local AI Mode (--local-ai)</button>
+      </div>
 
       <!-- Copyable Terminal Box -->
       <div class="terminal-wrapper">
@@ -709,7 +765,10 @@
           </div>
         </div>
       </div>
-      <div style="margin-top: 14px; font-size: 12px; color: #94A3B8; text-align: center;">
+      <div id="mode-description-note" style="margin-top: 14px; font-size: 13px; color: #CBD5E1; text-align: center; max-width: 820px; margin-left: auto; margin-right: auto;">
+        <span id="mode-note-text">⚡ <strong>Normal Mode (Default)</strong>: Instant statutory checksums (Verhoeff $D_5$, Mod-36) with zero downloads, zero model overhead, and zero cloud egress.</span>
+      </div>
+      <div style="margin-top: 12px; font-size: 12px; color: #94A3B8; text-align: center;">
         💡 <strong>macOS Tip:</strong> On Mac, download <code>EasyDP-Scanner-macOS.zip</code> to launch <strong>EasyDP Scanner.app</strong> (or double-click <code>easydp-scan.command</code>). For CLI, run <code>npx easydp-pii-scanner scan .</code> or <code>pip install easydp-pii-scanner</code>.
       </div>
     </div>
@@ -723,11 +782,12 @@
     <div class="demo-section">
       <div class="demo-header">
         <div class="demo-pills">
-          <button class="pill active" onclick="filterDemo('all')">All Files (4)</button>
+          <button class="pill active" onclick="filterDemo('all')">All Files (5)</button>
           <button class="pill" onclick="filterDemo('risk')">⚠️ High-Risk Folders</button>
           <button class="pill" onclick="filterDemo('aadhaar')">Aadhaar (Verhoeff)</button>
           <button class="pill" onclick="filterDemo('pan')">PAN (Entity Class)</button>
           <button class="pill" onclick="filterDemo('b2b')">B2B GSTIN</button>
+          <button class="pill" onclick="filterDemo('ai')">🧠 Local AI (Names &amp; Health)</button>
         </div>
         <input type="text" id="demo-search-input" class="demo-search" placeholder="Search files or PII..." onkeyup="searchDemo()">
       </div>
@@ -784,6 +844,130 @@
               <span class="chip chip-pan">PAN: XXXXX3456F (Firm)</span>
             </td>
             <td><strong>8</strong></td>
+          </tr>
+          <tr data-cat="ai health">
+            <td><strong>doctor_prescription.pdf</strong></td>
+            <td>Digital PDF</td>
+            <td><code>Medical/Consultations</code></td>
+            <td>
+              <span class="chip chip-ai">Name: Dr. Ramesh Kumar (Local AI)</span>
+              <span class="chip chip-health">Health: Type 2 Diabetes (Local AI)</span>
+              <span class="chip chip-phone">Mobile: +91-XXXXX-90123</span>
+            </td>
+            <td><strong>3</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Dual Scan Modes Section -->
+  <section id="modes" class="container" style="padding-top: 50px; padding-bottom: 50px;">
+    <div class="section-title">Dual Scan Modes: Choose Your Speed &amp; Depth</div>
+    <div class="section-subtitle">Balance extreme throughput on large tabular databases with deep contextual semantic extraction on unstructured contracts and medical records.</div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 28px; margin-top: 36px; margin-bottom: 36px;">
+      
+      <!-- Normal Mode Card -->
+      <div class="card" style="border: 2px solid rgba(212, 169, 69, 0.4); background: linear-gradient(180deg, rgba(212, 169, 69, 0.08) 0%, rgba(16, 35, 56, 0.85) 100%); position: relative; padding: 28px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <span style="background: rgba(212, 169, 69, 0.18); color: var(--gold); border: 1px solid rgba(212, 169, 69, 0.4); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">⚡ Default • Instant</span>
+          <span style="color: #34C77B; font-size: 12px; font-weight: 700;">&gt;5,000 rec/sec</span>
+        </div>
+        <h3 style="font-size: 24px; margin-bottom: 8px; color: #FFFFFF;">Normal Mode</h3>
+        <p style="color: #CBD5E1; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+          The default statutory checksum engine. Lightning fast, zero external model downloads, and zero heavy dependencies. Starts in &lt;0.05 seconds.
+        </p>
+
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-family: var(--font-mono); font-size: 13px; color: var(--gold);">
+          $ easydp-scan scan .
+        </div>
+
+        <h4 style="font-size: 13px; font-weight: 700; color: var(--on-dark-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Highlights &amp; Specs</h4>
+        <ul style="color: #94A3B8; font-size: 13px; line-height: 1.8; padding-left: 20px; margin-bottom: 20px;">
+          <li><strong style="color: #F8FAFC;">Detection Engine</strong>: Pass 1 MaskFlow Checksums &amp; RegEx.</li>
+          <li><strong style="color: #F8FAFC;">Aadhaar Verhoeff ($D_5$)</strong>: UIDAI mathematical check digit eliminates false alarms on random 12-digit numbers.</li>
+          <li><strong style="color: #F8FAFC;">Statutory IDs</strong>: PAN (entity class decoded), GSTIN (Mod-36), Bank IFSC, UPI VPAs, Phone, Email, Indian PIN codes.</li>
+          <li><strong style="color: #F8FAFC;">Downloads Required</strong>: <strong>Zero</strong>. 100% ready out-of-the-box.</li>
+          <li><strong style="color: #F8FAFC;">Resource Footprint</strong>: Minimal (1 CPU core, &lt;256MB RAM).</li>
+          <li><strong style="color: #F8FAFC;">Best For</strong>: High-volume CSV/Excel dumps, Tally ERP databases, large server logs, and CI/CD pull request gates.</li>
+        </ul>
+      </div>
+
+      <!-- Local AI Mode Card -->
+      <div class="card" style="border: 2px solid rgba(52, 199, 123, 0.5); background: linear-gradient(180deg, rgba(30, 138, 95, 0.12) 0%, rgba(16, 35, 56, 0.85) 100%); position: relative; padding: 28px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <span style="background: rgba(30, 138, 95, 0.25); color: #34C77B; border: 1px solid rgba(52, 199, 123, 0.4); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">🧠 Deep Contextual AI</span>
+          <span style="color: var(--gold); font-size: 12px; font-weight: 700;">Zero GPU Required</span>
+        </div>
+        <h3 style="font-size: 24px; margin-bottom: 8px; color: #FFFFFF;">Local AI Mode (<code style="font-size: 19px; color: #34C77B;">--local-ai</code>)</h3>
+        <p style="color: #CBD5E1; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+          Combines Pass 1 statutory rules with in-process zero-shot Edge AI NER (<code style="font-size: 12px; color: var(--gold);">urchade/gliner_small-v2.1</code>). Detects unstructured PII that regex cannot.
+        </p>
+
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-family: var(--font-mono); font-size: 13px; color: #34C77B;">
+          $ easydp-scan scan . --local-ai
+        </div>
+
+        <h4 style="font-size: 13px; font-weight: 700; color: var(--on-dark-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Highlights &amp; Specs</h4>
+        <ul style="color: #94A3B8; font-size: 13px; line-height: 1.8; padding-left: 20px; margin-bottom: 20px;">
+          <li><strong style="color: #F8FAFC;">Detection Engine</strong>: Pass 1 (MaskFlow) + Pass 2 (Local Edge AI NER).</li>
+          <li><strong style="color: #F8FAFC;">Unstructured Names</strong>: Identifies diverse Indian naming patterns ("Ramesh Kumar", "Priya Sharma") where regex fails (&lt;30% accuracy).</li>
+          <li><strong style="color: #F8FAFC;">Addresses &amp; Medical Data</strong>: Detects physical residential addresses and sensitive health/medical conditions.</li>
+          <li><strong style="color: #F8FAFC;">Air-Gapped &amp; 100% In-Process</strong>: Runs on local CPU. Zero text or embeddings ever leave your device.</li>
+          <li><strong style="color: #F8FAFC;">Model Weights</strong>: One-time ~150MB local download (cached in <code>~/.cache/huggingface/hub/</code>). Loads from disk in ~1s.</li>
+          <li><strong style="color: #F8FAFC;">Auto-Installer</strong>: Running <code>--local-ai</code> prompts to auto-install optional dependencies (<code>pip install gliner protobuf</code>).</li>
+          <li><strong style="color: #F8FAFC;">Best For</strong>: Employment agreements, resumes, doctor prescriptions, customer dispute correspondence, and unstructured emails.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Mode Comparison Summary Table -->
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>⚡ Normal Mode (Default)</th>
+            <th>🧠 Local AI Mode (<code>--local-ai</code>)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>CLI Flag</strong></td>
+            <td><code>easydp-scan scan .</code></td>
+            <td><code>easydp-scan scan . --local-ai</code></td>
+          </tr>
+          <tr>
+            <td><strong>Engine Pipeline</strong></td>
+            <td>Pass 1: Deterministic MaskFlow Checksums &amp; RegEx</td>
+            <td>Pass 1 (MaskFlow) + Pass 2 (In-Process CPU Edge AI NER)</td>
+          </tr>
+          <tr>
+            <td><strong>Processing Throughput</strong></td>
+            <td>Instant (&gt;5,000 records/sec)</td>
+            <td>Deep Semantic Analysis (~50–100ms per text block)</td>
+          </tr>
+          <tr>
+            <td><strong>Identifiers Covered</strong></td>
+            <td>Aadhaar, PAN, GSTIN, IFSC, UPI, Mobile, Email, Indian PIN codes, Tabular columns</td>
+            <td><strong>All Normal Mode PII</strong> + Unstructured Indian Names, Free-Form Addresses, Health &amp; Medical Diagnoses</td>
+          </tr>
+          <tr>
+            <td><strong>Weight Downloads</strong></td>
+            <td><strong>Zero downloads</strong> (100% offline out-of-the-box)</td>
+            <td>One-time ~150MB weights download (cached locally in <code>~/.cache/huggingface/hub/</code>)</td>
+          </tr>
+          <tr>
+            <td><strong>Hardware Requirements</strong></td>
+            <td>1 CPU core, 256MB RAM</td>
+            <td>Any standard PC / laptop CPU, 1–2GB RAM, <strong>zero GPU</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Network Privacy</strong></td>
+            <td>100% Offline / Air-Gapped</td>
+            <td>100% Offline / Air-Gapped (zero cloud egress)</td>
           </tr>
         </tbody>
       </table>
@@ -1005,16 +1189,43 @@
   </footer>
 
   <script>
-    const commands = {
-      sh: "curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash",
-      pwsh: "irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex",
-      pip: "pip install easydp-pii-scanner",
-      pipx: "pipx run easydp-pii-scanner scan .",
-      npm: "npx easydp-pii-scanner scan .",
-      llm: "Please install easydp-scan on this machine and audit current directory for DPDP PII with zero egress."
+    const commandSets = {
+      normal: {
+        sh: "curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash",
+        pwsh: "irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex",
+        pip: "pip install easydp-pii-scanner && easydp-scan scan .",
+        pipx: "pipx run easydp-pii-scanner scan .",
+        npm: "npx easydp-pii-scanner scan .",
+        llm: "Please install easydp-scan on this machine and audit current directory for DPDP PII with zero egress."
+      },
+      ai: {
+        sh: "easydp-scan scan . --local-ai",
+        pwsh: "easydp-scan scan . --local-ai",
+        pip: "pip install \"easydp-pii-scanner[ai]\" && easydp-scan scan . --local-ai",
+        pipx: "pipx run \"easydp-pii-scanner[ai]\" scan . --local-ai",
+        npm: "npx easydp-pii-scanner scan . --local-ai",
+        llm: "Please install easydp-scan with [ai] extra and audit current directory using --local-ai for deep entity extraction."
+      }
     };
 
+    const modeNotes = {
+      normal: "⚡ <strong>Normal Mode (Default)</strong>: Instant statutory checksums (Verhoeff $D_5$, Mod-36) with zero downloads, zero model overhead, and zero cloud egress.",
+      ai: "🧠 <strong>Local AI Mode</strong>: Deep zero-shot NER model (urchade/gliner_small-v2.1, ~150MB) on local CPU for unstructured Indian names, addresses, & health data."
+    };
+
+    let currentMode = 'normal';
     let activeTab = 'sh';
+
+    function setMode(mode) {
+      currentMode = mode;
+      const normalBtn = document.getElementById('mode-normal-btn');
+      const aiBtn = document.getElementById('mode-ai-btn');
+      if (normalBtn) normalBtn.classList.toggle('active', mode === 'normal');
+      if (aiBtn) aiBtn.classList.toggle('active', mode === 'ai');
+      const noteEl = document.getElementById('mode-note-text');
+      if (noteEl && modeNotes[mode]) noteEl.innerHTML = modeNotes[mode];
+      updateTerminalCommand();
+    }
 
     function switchTab(tab) {
       activeTab = tab;
@@ -1025,9 +1236,13 @@
           btn.classList.remove('active');
         }
       });
+      updateTerminalCommand();
+    }
+
+    function updateTerminalCommand() {
       const termCmd = document.getElementById('term-cmd');
-      if (termCmd && commands[tab]) {
-        termCmd.textContent = commands[tab];
+      if (termCmd && commandSets[currentMode] && commandSets[currentMode][activeTab]) {
+        termCmd.textContent = commandSets[currentMode][activeTab];
       }
       const copyText = document.getElementById('copy-text');
       if (copyText) copyText.textContent = 'Copy';
@@ -1092,7 +1307,7 @@
     });
 
     function copyCommand() {
-      navigator.clipboard.writeText(commands[activeTab]);
+      navigator.clipboard.writeText(commandSets[currentMode][activeTab]);
       const btnText = document.getElementById('copy-text');
       btnText.textContent = 'Copied! ✓';
       setTimeout(() => { btnText.textContent = 'Copy'; }, 2000);
