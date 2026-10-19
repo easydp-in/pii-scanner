@@ -195,7 +195,7 @@ Requires **zero Python or Node installation**. Download from [GitHub Releases](h
 > - **Option C (Terminal CLI)**:
 >   ```bash
 >   chmod +x ./easydp-scan-macos-universal
->   # Normal Mode (instant checksums):
+>   # Normal Mode (instant checksums, 100% standalone):
 >   ./easydp-scan-macos-universal scan .
 >   # Local AI Mode (deep extraction for names, addresses, health):
 >   ./easydp-scan-macos-universal scan . --local-ai
@@ -217,6 +217,10 @@ Requires **zero Python or Node installation**. Download from [GitHub Releases](h
 > # Local AI Mode:
 > ./easydp-scan-linux-amd64 scan . --local-ai
 > ```
+>
+> [!NOTE]
+> **Normal Mode (Default)** is 100% standalone and requires zero Python or Node installation.
+> **Local AI Mode (`--local-ai`)** executes deep in-process NER models (`gliner`, `torch`) and requires Python 3.10+ installed on the host computer, plus an initial internet connection for the ~600MB model weights download.
 
 ### Method 2: One-Line Install Script
 **On macOS & Linux:**
@@ -338,7 +342,7 @@ EasyDP Local PII Scanner provides two operating modes to balance extreme through
 | **CLI Command** | `easydp-scan scan .` | `easydp-scan scan . --local-ai` |
 | **Detection Engine** | **Pass 1: MaskFlow Checksums & RegEx** | **Pass 1 (MaskFlow) + Pass 2 (In-Process Edge AI NER)** |
 | **Processing Speed** | **Instant** (>5,000 records/sec) | **Deep Semantic** (~50–100ms per text block) |
-| **Model Downloads** | **Zero downloads** (100% ready out-of-the-box) | **One-time ~150MB local model weights** download (cached in `~/.cache/huggingface/hub/`) |
+| **Model Downloads** | **Zero downloads** (100% ready out-of-the-box) | **One-time ~600MB local model weights** download (cached in `~/.cache/huggingface/hub/`) |
 | **Hardware Overhead** | Minimal (1 CPU core, 256MB RAM) | Standard PC / Laptop (CPU only, 1–2GB RAM, **zero GPU needed**) |
 | **Air-Gapped & Privacy**| 100% Offline (zero cloud egress) | 100% Offline (zero cloud egress, in-process CPU inference) |
 | **PII Identifiers Covered** | Aadhaar (Verhoeff $D_5$), PAN (entity class), GSTIN (Mod-36), Bank IFSC, UPI VPA, Mobile, Email, Indian PIN codes, Tabular/CSV columns | **All Normal Mode PII** + Unstructured Indian Person Names ("Ramesh Kumar", "Priya Sharma"), Free-Form Physical Addresses, Sensitive Health & Medical Data |
@@ -364,11 +368,12 @@ Normal mode runs by default whenever you execute `easydp-scan scan`. It relies o
 ---
 
 #### 🧠 Local AI Mode (Deep Semantic Extraction)
-Enable deep contextual detection by adding the `--local-ai` flag (alias: `--ai`). This activates Pass 2: an in-process zero-shot Named Entity Recognition (NER) model (`urchade/gliner_small-v2.1`, ~150MB) that runs entirely on your local CPU.
+Enable deep contextual detection by adding the `--local-ai` flag (alias: `--ai`). This activates Pass 2: an in-process zero-shot Named Entity Recognition (NER) model (`urchade/gliner_small-v2.1`, ~600MB) that runs entirely on your local CPU.
 
-- **Catches Unstructured PII**: Rule-based engines fail on unstructured Indian names (<30% accuracy) and free-form addresses. Local AI mode identifies personal names across diverse Indian linguistic contexts, residential addresses, and sensitive health/medical conditions.
+- **Requirements**: Requires **Python 3.10 or later** on the computer and a **one-time internet connection to download ~600MB** model weights on the first scan.
+- **Catches Unstructured PII**: Rule-based engines fail on unstructured Indian names (<30% accuracy) and free-form addresses. Local AI mode identifies personal names across diverse Indian linguistic contexts, residential addresses, and sensitive health/medical conditions without needing "Name:" labels.
 - **100% Air-Gapped & In-Process**: Runs strictly on your machine's CPU. No sentences, documents, or embeddings are ever transmitted to any external server or API.
-- **One-Time Download**: On first execution with `--local-ai`, the ~150MB model weights are downloaded from HuggingFace and cached locally in `~/.cache/huggingface/hub/`. Subsequent scans load instantly from disk in ~1s.
+- **One-Time Download**: On first execution with `--local-ai`, the ~600MB model weights are downloaded from HuggingFace and cached locally in `~/.cache/huggingface/hub/`. Subsequent scans load instantly from disk in ~1s.
 - **Interactive Auto-Install**: If optional AI dependencies (`gliner protobuf`) are missing, running `--local-ai` prompts you to install them automatically with one keypress (`Y`), cleanly supporting virtual environments, pipx, and PEP 668 environments (`--user --break-system-packages`).
 - **Quick Command**:
   ```bash

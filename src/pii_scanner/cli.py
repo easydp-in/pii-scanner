@@ -285,7 +285,17 @@ def run_cli(args: list[str] | None = None) -> int:
                 py_exe = sys.executable
                 if getattr(sys, "frozen", False):
                     import shutil
-                    py_exe = shutil.which("python3") or shutil.which("python") or "python3"
+
+                    py_exe = shutil.which("python3") or shutil.which("python")
+                    if not py_exe:
+                        console.print(
+                            "\n[bold red]✖ Local AI Mode requires Python 3.10+ installed on this computer.[/bold red]\n\n"
+                            "  The standalone binary runs ⚡ Normal Mode (statutory checksums & rules) with zero dependencies.\n"
+                            "  To use 🧠 Local AI Mode (Pass 2 Edge AI NER), please install Python 3.10+ and run:\n\n"
+                            r'    [bold green]pip install "easydp-pii-scanner\[ai]"[/bold green]' + "\n"
+                            "    [bold green]easydp-scan scan . --local-ai[/bold green]\n"
+                        )
+                        return 1
 
                 if sys.stdin.isatty() and not parsed.quiet:
                     console.print(
@@ -353,7 +363,7 @@ def run_cli(args: list[str] | None = None) -> int:
             if not parsed.quiet:
                 with console.status(
                     "[bold cyan]Initializing Pass 2 Edge AI model (urchade/gliner_small-v2.1)...[/bold cyan]\n"
-                    "[dim](First run downloads ~150MB local model weights to ~/.cache/huggingface/hub/)[/dim]",
+                    "[dim](First run downloads ~600MB local model weights to ~/.cache/huggingface/hub/)[/dim]",
                     spinner="dots",
                 ):
                     ai_ner = LocalEdgeNER()
