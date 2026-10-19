@@ -88,7 +88,7 @@ def test_base_extractor_ai_deduplication() -> None:
 
 def test_cli_ai_missing_dependency(capsys) -> None:  # type: ignore[no-untyped-def]
     with patch("pii_scanner.ai.edge_ner.LocalEdgeNER.is_available", return_value=False):
-        exit_code = run_cli(["scan", ".", "--ai", "-q"])
+        exit_code = run_cli(["scan", ".", "--local-ai", "-q"])
         assert exit_code == 1
 
 
@@ -107,7 +107,23 @@ def test_cli_ai_flag_wiring(tmp_path) -> None:  # type: ignore[no-untyped-def]
         mock_instance.is_available.return_value = True
         mock_instance.predict_entities = mock_ner.predict_entities
 
+        # Test canonical --local-ai flag
         exit_code = run_cli(
+            [
+                "scan",
+                str(tmp_path),
+                "--local-ai",
+                "-f",
+                "json",
+                "-o",
+                str(tmp_path / "out"),
+                "-q",
+            ]
+        )
+        assert exit_code == 0
+
+        # Test --ai alias
+        exit_code_alias = run_cli(
             [
                 "scan",
                 str(tmp_path),
@@ -119,7 +135,7 @@ def test_cli_ai_flag_wiring(tmp_path) -> None:  # type: ignore[no-untyped-def]
                 "-q",
             ]
         )
-        assert exit_code == 0
+        assert exit_code_alias == 0
 
 
 def test_cli_ai_interactive_auto_install(tmp_path) -> None:  # type: ignore[no-untyped-def]

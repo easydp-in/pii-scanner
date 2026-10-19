@@ -109,6 +109,7 @@ def create_parser() -> argparse.ArgumentParser:
         help="Suppress terminal summary output (useful for CI/CD pipelines)",
     )
     scan_parser.add_argument(
+        "--local-ai",
         "--ai",
         action="store_true",
         dest="use_ai",
