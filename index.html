@@ -688,6 +688,7 @@
       </a>
       <div class="nav-links">
         <a href="#modes">Scan Modes</a>
+        <a href="#installation">Installation</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#features">Features</a>
         <a href="#formats" class="nav-secondary">Documents</a>
@@ -695,7 +696,7 @@
         <a href="#architecture" class="nav-extra">Architecture</a>
         <a href="https://github.com/easydp-in/pii-scanner" target="_blank">GitHub</a>
         <a href="https://github.com/easydp-in/pii-scanner/issues/new" target="_blank" class="nav-extra" style="color: var(--error-dark);">🐞 Report Error</a>
-        <a href="https://github.com/easydp-in/pii-scanner/releases" class="btn btn-primary">Download Binaries</a>
+        <a href="#installation" class="btn btn-primary">Install / Download</a>
       </div>
     </div>
   </nav>
@@ -974,6 +975,131 @@
     </div>
   </section>
 
+  <!-- Installation & Platform Support Section -->
+  <section id="installation" class="container" style="padding-top: 50px; padding-bottom: 50px;">
+    <div class="section-title">Installation &amp; Platform Support</div>
+    <div class="section-subtitle">Zero-install runner via NPX, Python PyPI package, or standalone air-gapped executables. Every method supports both Normal and Local AI modes.</div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-top: 36px; margin-bottom: 36px;">
+      
+      <!-- NPM / NPX -->
+      <div class="card" style="border-top: 4px solid #CB3837;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <span style="font-size: 11px; font-weight: 700; color: #CB3837; text-transform: uppercase; letter-spacing: 0.5px;">Node.js Ecosystem</span>
+          <span style="background: rgba(203, 56, 55, 0.15); color: #EF4444; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;">Zero-Install</span>
+        </div>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">🚀 NPM / NPX Runner</h3>
+        <p style="color: #94A3B8; font-size: 13px; line-height: 1.6; margin-bottom: 14px;">
+          Run instantly in any terminal with Node.js installed without global package clutter:
+        </p>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># ⚡ Normal Mode (Instant)</div>
+          <div style="color: var(--gold);">npx easydp-pii-scanner scan .</div>
+        </div>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># 🧠 Local AI Mode (Deep Extraction)</div>
+          <div style="color: #34C77B;">npx easydp-pii-scanner scan . --local-ai</div>
+        </div>
+      </div>
+
+      <!-- Python / Pip / Pipx -->
+      <div class="card" style="border-top: 4px solid #3776AB;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <span style="font-size: 11px; font-weight: 700; color: #3776AB; text-transform: uppercase; letter-spacing: 0.5px;">Python / PyPI</span>
+          <span style="background: rgba(55, 118, 171, 0.15); color: #60A5FA; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;">pip / pipx</span>
+        </div>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">🐍 Python Package</h3>
+        <p style="color: #94A3B8; font-size: 13px; line-height: 1.6; margin-bottom: 14px;">
+          Install from PyPI into your active virtualenv, global system, or isolated CLI via pipx:
+        </p>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># ⚡ Normal Mode</div>
+          <div style="color: var(--gold);">pip install easydp-pii-scanner</div>
+        </div>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># 🧠 Local AI Mode (with extra)</div>
+          <div style="color: #34C77B;">pip install "easydp-pii-scanner[ai]"<br>easydp-scan scan . --local-ai</div>
+        </div>
+      </div>
+
+      <!-- Standalone Executables -->
+      <div class="card" style="border-top: 4px solid var(--gold);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <span style="font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px;">Air-Gapped Binaries</span>
+          <span style="background: rgba(212, 169, 69, 0.15); color: var(--gold); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;">Zero Deps</span>
+        </div>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">📦 Standalone &amp; Mac App</h3>
+        <p style="color: #94A3B8; font-size: 13px; line-height: 1.6; margin-bottom: 14px;">
+          Self-contained executable files. Zero Python or Node required on the target machine:
+        </p>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># 🍏 Mac: App bundle / Double-click launcher</div>
+          <div style="color: var(--gold);">EasyDP-Scanner-macOS.zip</div>
+        </div>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># 🪟 Windows (.exe) / 🐧 Linux (ELF)</div>
+          <div style="color: #34C77B;">.\easydp-scan-windows-amd64.exe scan . --local-ai</div>
+        </div>
+      </div>
+
+      <!-- One-Line Install Script -->
+      <div class="card" style="border-top: 4px solid #10B981;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <span style="font-size: 11px; font-weight: 700; color: #10B981; text-transform: uppercase; letter-spacing: 0.5px;">Shell &amp; PowerShell</span>
+          <span style="background: rgba(16, 185, 129, 0.15); color: #34C77B; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;">One-Liner</span>
+        </div>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">⚡ Quick Install Script</h3>
+        <p style="color: #94A3B8; font-size: 13px; line-height: 1.6; margin-bottom: 14px;">
+          Automatically detects your OS and installs the binary directly to your path:
+        </p>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; font-family: var(--font-mono); font-size: 12px; word-break: break-all;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># macOS / Linux (with AI)</div>
+          <div style="color: var(--gold);">curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash -s -- --ai</div>
+        </div>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 12px; word-break: break-all;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># Windows PowerShell</div>
+          <div style="color: #34C77B;">irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex</div>
+        </div>
+      </div>
+
+      <!-- Homebrew -->
+      <div class="card" style="border-top: 4px solid #F59E0B;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <span style="font-size: 11px; font-weight: 700; color: #F59E0B; text-transform: uppercase; letter-spacing: 0.5px;">macOS &amp; Linux</span>
+          <span style="background: rgba(245, 158, 11, 0.15); color: #FBBF24; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;">brew</span>
+        </div>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">🍺 Homebrew Tap</h3>
+        <p style="color: #94A3B8; font-size: 13px; line-height: 1.6; margin-bottom: 14px;">
+          Official brew tap for macOS and Linux developer machines:
+        </p>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># Install via Brew</div>
+          <div style="color: var(--gold);">brew tap easydp-in/tap &amp;&amp; brew install easydp-scan</div>
+        </div>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 12px;">
+          <div style="color: #64748B; font-size: 11px; margin-bottom: 4px;"># Audit with Local AI</div>
+          <div style="color: #34C77B;">easydp-scan scan . --local-ai</div>
+        </div>
+      </div>
+
+      <!-- AI Coding Agents -->
+      <div class="card" style="border-top: 4px solid #8B5CF6;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <span style="font-size: 11px; font-weight: 700; color: #8B5CF6; text-transform: uppercase; letter-spacing: 0.5px;">AI Coding Assistants</span>
+          <span style="background: rgba(139, 92, 246, 0.15); color: #C084FC; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px;">One-Click</span>
+        </div>
+        <h3 style="font-size: 18px; margin-bottom: 8px;">🤖 AI Agent Prompt</h3>
+        <p style="color: #94A3B8; font-size: 13px; line-height: 1.6; margin-bottom: 14px;">
+          Copy and paste directly into Claude Code, Cursor, Copilot, or Gemini:
+        </p>
+        <div style="background: #0B1320; border: 1px solid var(--navy-line-strong); border-radius: 6px; padding: 10px 12px; font-family: var(--font-mono); font-size: 11.5px; color: #E2E8F0; line-height: 1.5;">
+          "Please install easydp-scan with [ai] extra on this machine and audit current directory using --local-ai for DPDP PII with zero egress."
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- Architecture Section -->
   <section id="architecture" class="container arch-container">
     <div class="section-title">Hybrid Dual-Engine Architecture</div>
@@ -1199,8 +1325,8 @@
         llm: "Please install easydp-scan on this machine and audit current directory for DPDP PII with zero egress."
       },
       ai: {
-        sh: "easydp-scan scan . --local-ai",
-        pwsh: "easydp-scan scan . --local-ai",
+        sh: "curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash -s -- --ai && easydp-scan scan . --local-ai",
+        pwsh: "irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex -AI; easydp-scan scan . --local-ai",
         pip: "pip install \"easydp-pii-scanner[ai]\" && easydp-scan scan . --local-ai",
         pipx: "pipx run \"easydp-pii-scanner[ai]\" scan . --local-ai",
         npm: "npx easydp-pii-scanner scan . --local-ai",
