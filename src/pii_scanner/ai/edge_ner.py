@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import logging
 import os
@@ -34,7 +35,7 @@ class LocalEdgeNER:
         return importlib.util.find_spec("gliner") is not None
 
     def load_model(self) -> None:
-        """Load or download the local edge GLiNER model checkpoint."""
+        """Load or download the local edge GLiNER model checkpoint with suppressed background noise."""
         if self._model is not None:
             return
 
@@ -45,16 +46,22 @@ class LocalEdgeNER:
 
         os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
+        os.environ["HF_HUB_VERBOSITY"] = "error"
+        os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+        os.environ["TQDM_DISABLE"] = "1"
 
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
             logging.getLogger("transformers").setLevel(logging.ERROR)
             logging.getLogger("gliner").setLevel(logging.ERROR)
+            logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
             from gliner import GLiNER
 
             logger.info("Loading Pass 2 Local Edge AI NER model (%s)...", self.model_name)
-            self._model = GLiNER.from_pretrained(self.model_name)
+            with open(os.devnull, "w") as devnull:
+                with contextlib.redirect_stdout(devnull), contextlib.redirect_stderr(devnull):
+                    self._model = GLiNER.from_pretrained(self.model_name)
             logger.info("Pass 2 Local Edge AI NER model loaded successfully.")
 
     def predict_entities(self, text: str) -> list[dict[str, Any]]:
@@ -73,9 +80,11 @@ class LocalEdgeNER:
         try:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore")
-                results: list[dict[str, Any]] = self._model.predict_entities(
-                    text_stripped, self.labels, threshold=self.threshold
-                )
+                with open(os.devnull, "w") as devnull:
+                    with contextlib.redirect_stdout(devnull), contextlib.redirect_stderr(devnull):
+                        results: list[dict[str, Any]] = self._model.predict_entities(
+                            text_stripped, self.labels, threshold=self.threshold
+                        )
                 return results or []
         except Exception as e:
             logger.debug("LocalEdgeNER prediction failed on text slice: %s", e)

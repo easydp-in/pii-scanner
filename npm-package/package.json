@@ -1,6 +1,6 @@
 {
   "name": "easydp-pii-scanner",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Offline-first local PII scanner for Indian DPDP Act compliance built for SMBs by EasyDP.in",
   "bin": {
     "easydp-scan": "./bin/easydp-scan.js",

@@ -4,7 +4,7 @@ Copyright (c) 2026 EasyDP (https://easydp.in)
 Licensed under the Apache License, Version 2.0.
 """
 
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __author__ = "EasyDP"
 __homepage__ = "https://easydp.in"
 __guides_url__ = "https://www.easydp.in/guides/"
