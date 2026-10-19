@@ -24,16 +24,35 @@ esac
 
 mkdir -p "${INSTALL_DIR}"
 
+WANT_AI=0
+for arg in "$@"; do
+  if [ "${arg}" = "--local-ai" ] || [ "${arg}" = "--ai" ] || [ "${arg}" = "ai" ]; then
+    WANT_AI=1
+  fi
+done
+if [ "${INSTALL_AI:-0}" = "1" ]; then
+  WANT_AI=1
+fi
+
+PKG_NAME="easydp-pii-scanner"
+if [ "${WANT_AI}" = "1" ]; then
+  PKG_NAME="easydp-pii-scanner[ai]"
+  echo "=> Local AI Mode requested: installing with Pass 2 Edge AI dependencies (gliner, protobuf)..."
+fi
+
 if command -v python3 >/dev/null 2>&1; then
-  echo "=> Installing easydp-pii-scanner via pip..."
+  echo "=> Installing ${PKG_NAME} via pip..."
   INSTALL_SUCCESS=0
   if [ -f "pyproject.toml" ]; then
-    python3 -m pip install --quiet . 2>/dev/null && INSTALL_SUCCESS=1 || \
-    python3 -m pip install --quiet --break-system-packages . 2>/dev/null && INSTALL_SUCCESS=1 || \
-    python3 -m pip install --quiet --user --break-system-packages . 2>/dev/null && INSTALL_SUCCESS=1 || true
+    EXTRA_SPEC="."
+    [ "${WANT_AI}" = "1" ] && EXTRA_SPEC=".[ai]"
+    python3 -m pip install --quiet "${EXTRA_SPEC}" 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --break-system-packages "${EXTRA_SPEC}" 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --user --break-system-packages "${EXTRA_SPEC}" 2>/dev/null && INSTALL_SUCCESS=1 || true
   else
-    python3 -m pip install --quiet --upgrade "easydp-pii-scanner" 2>/dev/null && INSTALL_SUCCESS=1 || \
-    python3 -m pip install --quiet --upgrade --break-system-packages "easydp-pii-scanner" 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --upgrade "${PKG_NAME}" 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --upgrade --break-system-packages "${PKG_NAME}" 2>/dev/null && INSTALL_SUCCESS=1 || \
+    python3 -m pip install --quiet --user --break-system-packages "${PKG_NAME}" 2>/dev/null && INSTALL_SUCCESS=1 || \
     python3 -m pip install --quiet "git+https://github.com/${REPO}.git" 2>/dev/null && INSTALL_SUCCESS=1 || true
   fi
 
@@ -73,7 +92,10 @@ echo "  Installation Complete!"
 echo "  Binary location: ${INSTALL_DIR}/${BIN_NAME}"
 echo ""
 echo "  Run an audit using:"
-echo "    ${BIN_NAME} scan . --format html,json"
+echo "    ⚡ Normal Mode:   ${BIN_NAME} scan . --format html,json"
+echo "    🧠 Local AI Mode: ${BIN_NAME} scan . --local-ai"
+echo ""
 echo "  Or if ${INSTALL_DIR} is not in PATH:"
 echo "    ~/.local/bin/${BIN_NAME} scan ."
+echo "    ~/.local/bin/${BIN_NAME} scan . --local-ai"
 echo "============================================================"

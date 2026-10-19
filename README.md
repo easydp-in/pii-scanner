@@ -191,32 +191,69 @@ Requires **zero Python or Node installation**. Download from [GitHub Releases](h
 > [!TIP]
 > **Running on macOS**:
 > - **Option A (Desktop App)**: Download `EasyDP-Scanner-macOS.zip`, unzip, and launch **`EasyDP Scanner.app`** (or drag to `/Applications`).
-> - **Option B (Finder Double-Click)**: Double-click `easydp-scan.command` to run an interactive terminal audit.
+> - **Option B (Finder Double-Click)**: Double-click `easydp-scan.command` to interactively select **Normal Mode** or **Local AI Mode**.
 > - **Option C (Terminal CLI)**:
 >   ```bash
 >   chmod +x ./easydp-scan-macos-universal
+>   # Normal Mode (instant checksums):
 >   ./easydp-scan-macos-universal scan .
+>   # Local AI Mode (deep extraction for names, addresses, health):
+>   ./easydp-scan-macos-universal scan . --local-ai
 >   ```
+>
+> **Running on Windows (PowerShell / CMD)**:
+> ```powershell
+> # Normal Mode:
+> .\easydp-scan-windows-amd64.exe scan .
+> # Local AI Mode:
+> .\easydp-scan-windows-amd64.exe scan . --local-ai
+> ```
+>
+> **Running on Linux**:
+> ```bash
+> chmod +x ./easydp-scan-linux-amd64
+> # Normal Mode:
+> ./easydp-scan-linux-amd64 scan .
+> # Local AI Mode:
+> ./easydp-scan-linux-amd64 scan . --local-ai
+> ```
 
 ### Method 2: One-Line Install Script
 **On macOS & Linux:**
 ```bash
+# Normal Mode:
 curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash
+easydp-scan scan .
+
+# With Pass 2 Local AI dependencies included:
+curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash -s -- --ai
+easydp-scan scan . --local-ai
 ```
 
 **On Windows (PowerShell):**
 ```powershell
+# Install via one-line script:
 irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex
+
+# Run Normal Mode:
+easydp-scan scan .
+
+# Run Local AI Mode:
+easydp-scan scan . --local-ai
 ```
 
 ### Method 3: NPM / NPX (Zero-Install Runner)
 ```bash
-# Run instantly with zero installation via npx:
+# Normal Mode (instant execution via npx):
 npx easydp-pii-scanner scan ./my-data
+
+# Local AI Mode (deep extraction for unstructured names, addresses, health data):
+npx easydp-pii-scanner scan . --local-ai
 
 # Or install globally:
 npm install -g easydp-pii-scanner
 easydp-scan scan . --format html,json
+easydp-scan scan . --local-ai
 ```
 
 ### Method 4: Python / Pip / Pipx
@@ -225,18 +262,32 @@ easydp-scan scan . --format html,json
 pip install easydp-pii-scanner
 easydp-scan scan . --format html,json
 
-# With optional Pass 2 Local Edge AI NER (unstructured names, addresses, health conditions):
+# With Pass 2 Local Edge AI NER (unstructured names, addresses, health conditions):
 pip install "easydp-pii-scanner[ai]"
 easydp-scan scan . --local-ai
 
-# Or isolated CLI execution via pipx:
+# Isolated CLI execution via pipx:
+# Normal Mode:
 pipx run easydp-pii-scanner scan .
+
+# Local AI Mode:
+pipx run "easydp-pii-scanner[ai]" scan . --local-ai
+
+# Or install globally in an isolated virtual environment:
+pipx install "easydp-pii-scanner[ai]"
+easydp-scan scan . --local-ai
 ```
 
 ### Method 5: Homebrew (macOS & Linux)
 ```bash
 brew tap easydp-in/tap
 brew install easydp-scan
+
+# Normal Mode:
+easydp-scan scan .
+
+# Local AI Mode:
+easydp-scan scan . --local-ai
 ```
 
 ### Method 6: One-Click Prompt for AI Agents & LLMs 🤖
@@ -249,13 +300,14 @@ Please install and execute the EasyDP Local PII Scanner on this machine:
 
 1. Detect the operating system (Windows, macOS, or Linux) and active shell environment.
 2. Install the scanner using the fastest available method:
-   - If Python 3.10+ is available: `pip install easydp-pii-scanner`
-   - If Node.js is present: run directly with `npx easydp-pii-scanner scan .`
+   - If Python 3.10+ is available: `pip install "easydp-pii-scanner[ai]"` (or `pip install easydp-pii-scanner`)
+   - If Node.js is present: run directly with `npx easydp-pii-scanner scan .` (or `npx easydp-pii-scanner scan . --local-ai`)
    - On macOS/Linux terminal: `curl -fsSL https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.sh | bash`
    - On Windows PowerShell: `irm https://raw.githubusercontent.com/easydp-in/pii-scanner/main/scripts/install.ps1 | iex`
 3. Verify the installation: `easydp-scan --version`
 4. Run a local DPDP compliance scan on the current project or workspace:
-   `easydp-scan scan . --format html,json,cli --output-dir ./reports`
+   Normal Mode:   easydp-scan scan . --format html,json,cli --output-dir ./reports
+   Local AI Mode: easydp-scan scan . --local-ai --format html,json,cli --output-dir ./reports
    (Or use `easydp-scan scan --user-dirs --output-dir ./reports` to scan Downloads, Desktop, and Documents)
 5. Report the location of `./reports/scan_report.html` and summarize the PII counts discovered.
 Important: EasyDP Local PII Scanner is 100% offline with zero telemetry. Never transmit, export, or send scanned file contents or reports to any remote server or external API.

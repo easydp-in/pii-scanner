@@ -264,17 +264,34 @@ def run_cli(args: list[str] | None = None) -> int:
         ai_ner = None
         if getattr(parsed, "use_ai", False):
             import importlib
+            import os
             import subprocess
 
             from pii_scanner.ai.edge_ner import LocalEdgeNER
 
+            if getattr(sys, "frozen", False):
+                import site
+                user_site = site.getusersitepackages()
+                if user_site and user_site not in sys.path and os.path.exists(user_site):
+                    sys.path.insert(0, user_site)
+                if hasattr(site, "getsitepackages"):
+                    for sp in site.getsitepackages():
+                        if sp and sp not in sys.path and os.path.exists(sp):
+                            sys.path.insert(0, sp)
+                importlib.invalidate_caches()
+
             if not LocalEdgeNER.is_available():
                 installed = False
+                py_exe = sys.executable
+                if getattr(sys, "frozen", False):
+                    import shutil
+                    py_exe = shutil.which("python3") or shutil.which("python") or "python3"
+
                 if sys.stdin.isatty() and not parsed.quiet:
                     console.print(
                         "\n[bold yellow]Pass 2 Edge AI dependencies (gliner, protobuf) are not yet installed in this Python environment.[/bold yellow]"
                     )
-                    console.print(f"[dim]Target Python: {sys.executable}[/dim]\n")
+                    console.print(f"[dim]Target Python: {py_exe}[/dim]\n")
                     try:
                         choice = (
                             console.input(
@@ -294,7 +311,7 @@ def run_cli(args: list[str] | None = None) -> int:
                         def _run_pip(
                             extra_args: list[str],
                         ) -> subprocess.CompletedProcess[bytes] | None:
-                            base_cmd = [sys.executable, "-m", "pip", "install"]
+                            base_cmd = [py_exe, "-m", "pip", "install"]
                             # 1. Standard install
                             p = subprocess.run(base_cmd + extra_args)
                             if p.returncode == 0:

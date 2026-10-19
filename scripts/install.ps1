@@ -1,5 +1,9 @@
 # EasyDP Local PII Scanner — One-Line PowerShell Installer for Windows
 # https://easydp.in
+param(
+    [switch]$AI,
+    [switch]$LocalAI
+)
 $ErrorActionPreference = "Stop"
 
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -14,7 +18,7 @@ if (!(Test-Path -Path $InstallDir)) {
 }
 
 $ExePath = Join-Path $InstallDir "easydp-scan.exe"
-$BinaryUrl = "https://github.com/easydp-in/pii-scanner/releases/latest/download/pii-scanner-windows-amd64.exe"
+$BinaryUrl = "https://github.com/easydp-in/pii-scanner/releases/latest/download/easydp-scan-windows-amd64.exe"
 
 try {
     Write-Host "=> Downloading standalone executable..." -ForegroundColor Yellow
@@ -29,12 +33,14 @@ try {
 
     Write-Host "`n============================================================" -ForegroundColor Green
     Write-Host "  Installation Complete!" -ForegroundColor Green
-    Write-Host "  Run: easydp-scan scan C:\Users\YourName\Documents" -ForegroundColor White
+    Write-Host "  Run (Normal Mode):   easydp-scan scan C:\Users\YourName\Documents" -ForegroundColor White
+    Write-Host "  Run (Local AI Mode): easydp-scan scan C:\Users\YourName\Documents --local-ai" -ForegroundColor White
     Write-Host "============================================================" -ForegroundColor Green
 } catch {
     Write-Warning "Direct binary download failed. Trying Python pip fallback..."
     if (Get-Command python -ErrorAction SilentlyContinue) {
-        python -m pip install --upgrade easydp-pii-scanner
+        $pkg = if ($AI -or $LocalAI) { "easydp-pii-scanner[ai]" } else { "easydp-pii-scanner" }
+        python -m pip install --upgrade $pkg
     } else {
         Write-Error "Failed to install EasyDP Local PII Scanner. Please install Python or download manually from https://github.com/easydp-in/pii-scanner/releases"
     }
