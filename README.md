@@ -74,9 +74,10 @@
 | **UPI VPA Handle** | Financial / Payment | B2C & B2B | Payment handles (`user@okhdfcbank`, `mobile@paytm`, `merchant@ybl`, etc.) | `r***a@okhdfcbank` |
 | **Indian Mobile** | Contact | B2C & B2B | National Numbering Plan (+91/0/6–9) with digit-boundary isolation | `+91-XXXXX-43210` |
 | **Email Address** | Contact | B2C & B2B | RFC-5322 pattern matching for personal and corporate mailboxes | `r***a@example.com` |
-| **Person Name** | Identity | B2C & B2B | Salutation & labeled entity detection (`Mr.`, `Dr.`, `Shri`, form labels) + tabular columns | `R***h K***r` |
-| **Postal Address** | Contact / Physical | B2C & B2B | Address blocks, street/locality identifiers, apartment/plot numbers | `Plot ***, Sector 14, ...` |
+| **Person Name** | Identity | B2C & B2B | Salutation & labeled entity detection (`Mr.`, `Dr.`, `Shri`, form labels) + tabular columns (enhanced with `--local-ai`) | `R***h K***r` |
+| **Postal Address** | Contact / Physical | B2C & B2B | Address blocks, street/locality identifiers, apartment/plot numbers (enhanced with `--local-ai`) | `Plot ***, Sector 14, ...` |
 | **Indian PIN Code** | Location / Postal | B2C & B2B | 6-digit Indian postal circles (1–9 zone constraints) + contextual verification | `560***` |
+| **Health & Medical Data** | Sensitive / Health | B2C | Zero-shot in-process CPU Named Entity Recognition via `--local-ai` | `c***t` |
 
 ### 2. Multi-Format Document & Data Source Support
 
@@ -276,10 +277,66 @@ Our GitHub Actions pipeline continuously tests the scanner across operating syst
 
 ## Quickstart & Usage
 
+### Dual Scan Modes: Normal Mode vs. Local AI Mode
+
+EasyDP Local PII Scanner provides two operating modes to balance extreme throughput with deep semantic intelligence:
+
+| Capability / Attribute | ⚡ Normal Mode (Default) | 🧠 Local AI Mode (`--local-ai`) |
+| :--- | :--- | :--- |
+| **CLI Command** | `easydp-scan scan .` | `easydp-scan scan . --local-ai` |
+| **Detection Engine** | **Pass 1: MaskFlow Checksums & RegEx** | **Pass 1 (MaskFlow) + Pass 2 (In-Process Edge AI NER)** |
+| **Processing Speed** | **Instant** (>5,000 records/sec) | **Deep Semantic** (~50–100ms per text block) |
+| **Model Downloads** | **Zero downloads** (100% ready out-of-the-box) | **One-time ~150MB local model weights** download (cached in `~/.cache/huggingface/hub/`) |
+| **Hardware Overhead** | Minimal (1 CPU core, 256MB RAM) | Standard PC / Laptop (CPU only, 1–2GB RAM, **zero GPU needed**) |
+| **Air-Gapped & Privacy**| 100% Offline (zero cloud egress) | 100% Offline (zero cloud egress, in-process CPU inference) |
+| **PII Identifiers Covered** | Aadhaar (Verhoeff $D_5$), PAN (entity class), GSTIN (Mod-36), Bank IFSC, UPI VPA, Mobile, Email, Indian PIN codes, Tabular/CSV columns | **All Normal Mode PII** + Unstructured Indian Person Names ("Ramesh Kumar", "Priya Sharma"), Free-Form Physical Addresses, Sensitive Health & Medical Data |
+| **Best Suited For** | High-volume tabular exports, CRM databases, CSV/Excel dumps, CI/CD compliance gates, live Tally ERP audits | Unstructured contracts, resumes, email threads, doctor prescriptions, customer dispute letters |
+
+---
+
+#### ⚡ Normal Mode (Instant Statutory Audit)
+Normal mode runs by default whenever you execute `easydp-scan scan`. It relies on mathematical checksums and high-speed rule patterns to audit files at blisteringly fast speeds without downloading any model weights or loading heavy libraries.
+
+- **Zero Setup & Instant Startup**: Included with every standalone binary, PyPI package, or `npx` runner. Starts in <0.05 seconds.
+- **Mathematical Certainty**: Verhoeff dihedral group algorithm ($D_5$) ensures Aadhaar matches are genuine government-issued IDs, eliminating false positives on random 12-digit numbers.
+- **Mod-36 Validation**: GSTIN validation checks state jurisdiction codes, embedded PAN structure, and check characters.
+- **Quick Command**:
+  ```bash
+  # Scan current workspace into ./reports:
+  easydp-scan scan . --format html,json
+
+  # Or run instantly with zero installation via NPX:
+  npx easydp-pii-scanner scan .
+  ```
+
+---
+
+#### 🧠 Local AI Mode (Deep Semantic Extraction)
+Enable deep contextual detection by adding the `--local-ai` flag (alias: `--ai`). This activates Pass 2: an in-process zero-shot Named Entity Recognition (NER) model (`urchade/gliner_small-v2.1`, ~150MB) that runs entirely on your local CPU.
+
+- **Catches Unstructured PII**: Rule-based engines fail on unstructured Indian names (<30% accuracy) and free-form addresses. Local AI mode identifies personal names across diverse Indian linguistic contexts, residential addresses, and sensitive health/medical conditions.
+- **100% Air-Gapped & In-Process**: Runs strictly on your machine's CPU. No sentences, documents, or embeddings are ever transmitted to any external server or API.
+- **One-Time Download**: On first execution with `--local-ai`, the ~150MB model weights are downloaded from HuggingFace and cached locally in `~/.cache/huggingface/hub/`. Subsequent scans load instantly from disk in ~1s.
+- **Interactive Auto-Install**: If optional AI dependencies (`gliner protobuf`) are missing, running `--local-ai` prompts you to install them automatically with one keypress (`Y`), cleanly supporting virtual environments, pipx, and PEP 668 environments (`--user --break-system-packages`).
+- **Quick Command**:
+  ```bash
+  # Python with AI extra:
+  pip install "easydp-pii-scanner[ai]"
+  easydp-scan scan . --local-ai
+
+  # Via NPX or Standalone Binary:
+  npx easydp-pii-scanner scan . --local-ai
+  ```
+
+---
+
 ### 1. Scan Local Files & Folders
 ```bash
-# Scan current folder and generate HTML & JSON reports in ./reports:
+# Normal Mode: Scan current folder and generate HTML & JSON reports in ./reports:
 easydp-scan scan . --format html,json,cli --output-dir ./reports
+
+# Local AI Mode: Deep extraction for names, addresses, and health records:
+easydp-scan scan . --local-ai --format html,json,cli --output-dir ./reports
 
 # Scan customer exports on a specific drive:
 easydp-scan scan "D:\Client_Accounts" --format html --output-dir ./reports
@@ -292,9 +349,6 @@ easydp-scan scan . --log-file ./reports/scanner.log
 
 # Quiet mode for automated CI/CD pipelines:
 easydp-scan scan ./data -f json -q
-
-# Pass 2 Local Edge AI NER (zero-cloud CPU inference for unstructured names, addresses, and health data):
-easydp-scan scan . --local-ai
 ```
 
 > **Real-Time Analysis & Clean Terminal Logging**: The scanner includes a live progress bar tracking file analysis across directories. Raw library warnings (from `openpyxl`, `pypdf`, etc.) are cleanly suppressed from the terminal and routed to `reports/scanner.log` for troubleshooting. Clickable `file://` hyperlinks are printed upon completion for instant one-click report access.
