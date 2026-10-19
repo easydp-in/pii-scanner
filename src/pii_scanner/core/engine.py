@@ -6,6 +6,7 @@ from collections import defaultdict
 from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from pii_scanner import __version__
 from pii_scanner.core.models import (
@@ -95,8 +96,10 @@ class ExtractorRegistry:
     def __init__(
         self,
         custom_mapping: Mapping[str, type[BaseExtractor] | BaseExtractor] | None = None,
+        ai_ner: Any | None = None,
     ) -> None:
         self._extractors: dict[str, BaseExtractor] = {}
+        self.ai_ner = ai_ner
         if custom_mapping:
             for ext, item in custom_mapping.items():
                 self.register(ext, item)
@@ -104,13 +107,13 @@ class ExtractorRegistry:
             self._load_defaults()
 
     def _load_defaults(self) -> None:
-        csv_ext = CSVExtractor()
-        excel_ext = ExcelExtractor()
-        pdf_ext = PDFExtractor()
-        docx_ext = DocxExtractor()
-        odt_ext = ODTExtractor()
-        rtf_ext = RTFExtractor()
-        text_ext = TextExtractor()
+        csv_ext = CSVExtractor(ai_ner=self.ai_ner)
+        excel_ext = ExcelExtractor(ai_ner=self.ai_ner)
+        pdf_ext = PDFExtractor(ai_ner=self.ai_ner)
+        docx_ext = DocxExtractor(ai_ner=self.ai_ner)
+        odt_ext = ODTExtractor(ai_ner=self.ai_ner)
+        rtf_ext = RTFExtractor(ai_ner=self.ai_ner)
+        text_ext = TextExtractor(ai_ner=self.ai_ner)
 
         defaults: dict[str, BaseExtractor] = {
             ".csv": csv_ext,
@@ -135,12 +138,23 @@ class ExtractorRegistry:
         for ext, inst in defaults.items():
             self._extractors[ext.lower()] = inst
 
+    def set_ai_ner(self, ai_ner: Any | None) -> None:
+        """Update ai_ner across all registered extractors."""
+        self.ai_ner = ai_ner
+        for inst in self._extractors.values():
+            inst.set_ai_ner(ai_ner)
+
     def register(self, ext: str, extractor_or_cls: type[BaseExtractor] | BaseExtractor) -> None:
         """Register or override an extractor for a given file extension."""
         normalized = ext.lower() if ext.startswith(".") else f".{ext.lower()}"
         if isinstance(extractor_or_cls, type):
-            self._extractors[normalized] = extractor_or_cls()
+            inst = extractor_or_cls()
+            if self.ai_ner is not None:
+                inst.set_ai_ner(self.ai_ner)
+            self._extractors[normalized] = inst
         else:
+            if self.ai_ner is not None:
+                extractor_or_cls.set_ai_ner(self.ai_ner)
             self._extractors[normalized] = extractor_or_cls
 
     def get(self, ext: str) -> BaseExtractor | None:
@@ -163,14 +177,18 @@ class ScannerEngine:
         ignored_dirs: set[str] | None = None,
         custom_extractors: Mapping[str, type[BaseExtractor]] | None = None,
         registry: ExtractorRegistry | None = None,
+        ai_ner: Any | None = None,
     ) -> None:
         self.ignored_dirs = set(ignored_dirs) if ignored_dirs is not None else DEFAULT_IGNORED_DIRS
+        self.ai_ner = ai_ner
         if registry is not None:
             self.registry = registry
+            if ai_ner is not None:
+                self.registry.set_ai_ner(ai_ner)
         elif custom_extractors is not None:
-            self.registry = ExtractorRegistry(custom_extractors)
+            self.registry = ExtractorRegistry(custom_extractors, ai_ner=ai_ner)
         else:
-            self.registry = ExtractorRegistry()
+            self.registry = ExtractorRegistry(ai_ner=ai_ner)
 
     @property
     def extractors_map(self) -> dict[str, BaseExtractor]:

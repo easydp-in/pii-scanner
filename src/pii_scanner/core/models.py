@@ -11,6 +11,7 @@ class PIICategory(str, Enum):
     IDENTITY = "Identity & Official Identifiers"
     FINANCIAL = "Financial & Banking Details"
     CONTACT = "Contact & Communications"
+    HEALTH = "Health & Medical Data"
 
 
 class PIIType(str, Enum):
@@ -26,6 +27,7 @@ class PIIType(str, Enum):
     EMAIL = "Email Address"
     ADDRESS = "Postal Address"
     PINCODE = "Indian PIN Code"
+    HEALTH = "Health & Medical Data"
 
     @property
     def category(self) -> PIICategory:
@@ -33,6 +35,8 @@ class PIIType(str, Enum):
             return PIICategory.IDENTITY
         if self in (PIIType.GSTIN, PIIType.IFSC, PIIType.UPI):
             return PIICategory.FINANCIAL
+        if self == PIIType.HEALTH:
+            return PIICategory.HEALTH
         return PIICategory.CONTACT
 
 

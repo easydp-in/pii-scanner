@@ -3,8 +3,10 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from pii_scanner.core.models import FileScanResult, Finding, PIIType
+from pii_scanner.core.redactor import Redactor
 from pii_scanner.validators.aadhaar import AadhaarValidator
 from pii_scanner.validators.address import AddressValidator
 from pii_scanner.validators.email import EmailValidator
@@ -14,6 +16,9 @@ from pii_scanner.validators.pan import PANValidator
 from pii_scanner.validators.person_name import PersonNameValidator
 from pii_scanner.validators.phone import IndianPhoneValidator
 from pii_scanner.validators.upi import UPIValidator
+
+if TYPE_CHECKING:
+    pass
 
 
 class BaseExtractor(ABC):
@@ -28,6 +33,7 @@ class BaseExtractor(ABC):
     _DEFAULT_EMAIL = EmailValidator()
     _DEFAULT_NAME = PersonNameValidator()
     _DEFAULT_ADDRESS = AddressValidator()
+    _DEFAULT_REDACTOR = Redactor()
 
     def __init__(
         self,
@@ -40,6 +46,8 @@ class BaseExtractor(ABC):
         email_val: EmailValidator | None = None,
         name_val: PersonNameValidator | None = None,
         address_val: AddressValidator | None = None,
+        redactor: Redactor | None = None,
+        ai_ner: Any | None = None,
     ) -> None:
         self.aadhaar_val = aadhaar_val or self._DEFAULT_AADHAAR
         self.pan_val = pan_val or self._DEFAULT_PAN
@@ -50,6 +58,12 @@ class BaseExtractor(ABC):
         self.email_val = email_val or self._DEFAULT_EMAIL
         self.name_val = name_val or self._DEFAULT_NAME
         self.address_val = address_val or self._DEFAULT_ADDRESS
+        self.redactor = redactor or self._DEFAULT_REDACTOR
+        self.ai_ner = ai_ner
+
+    def set_ai_ner(self, ai_ner: Any | None) -> None:
+        """Dynamically attach or detach an edge AI NER engine."""
+        self.ai_ner = ai_ner
 
     @abstractmethod
     def extract(self, file_path: str) -> FileScanResult:
@@ -251,6 +265,43 @@ class BaseExtractor(ABC):
                     confidence=0.95,
                 )
             )
+
+        # 11. Pass 2 Local Edge AI NER (when enabled via --ai)
+        if self.ai_ner is not None and len(text_clean) >= 15 and len(text_clean.split()) >= 2:
+            ai_entities = self.ai_ner.predict_entities(text_clean)
+            for ent in ai_entities:
+                label = ent.get("label")
+                raw_val = ent.get("text", "").strip()
+                score = float(ent.get("score", 0.5))
+                if not raw_val or len(raw_val) < 2:
+                    continue
+                if label == "person name":
+                    findings.append(
+                        Finding(
+                            pii_type=PIIType.NAME,
+                            masked_value=self.name_val.mask(raw_val),
+                            location=location_prefix,
+                            confidence=round(score, 2),
+                        )
+                    )
+                elif label == "address":
+                    findings.append(
+                        Finding(
+                            pii_type=PIIType.ADDRESS,
+                            masked_value=self.address_val.mask_address(raw_val),
+                            location=location_prefix,
+                            confidence=round(score, 2),
+                        )
+                    )
+                elif label == "medical condition":
+                    findings.append(
+                        Finding(
+                            pii_type=PIIType.HEALTH,
+                            masked_value=self.redactor.mask(PIIType.HEALTH, raw_val),
+                            location=location_prefix,
+                            confidence=round(score, 2),
+                        )
+                    )
 
         # Deduplicate findings with identical (pii_type, masked_value, location)
         unique_findings: list[Finding] = []

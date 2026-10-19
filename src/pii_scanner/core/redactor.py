@@ -60,6 +60,7 @@ class Redactor:
             PIIType.EMAIL: self.email_val.mask,
             PIIType.ADDRESS: self.address_val.mask_address,
             PIIType.PINCODE: self.address_val.mask_pincode,
+            PIIType.HEALTH: self.mask_generic,
         }
 
     def mask(self, pii_type: PIIType, raw_value: str) -> str:

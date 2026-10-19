@@ -108,6 +108,12 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Suppress terminal summary output (useful for CI/CD pipelines)",
     )
+    scan_parser.add_argument(
+        "--ai",
+        action="store_true",
+        dest="use_ai",
+        help="Enable Pass 2 Local Edge AI NER (GLiNER) for unstructured person names, addresses & health data",
+    )
 
     # Command: tally
     tally_parser = subparsers.add_parser(
@@ -254,7 +260,36 @@ def run_cli(args: list[str] | None = None) -> int:
         active_log_path = setup_scanner_logging(log_target)
         console = Console(safe_box=True)
 
-        engine = ScannerEngine()
+        ai_ner = None
+        if getattr(parsed, "use_ai", False):
+            from pii_scanner.ai.edge_ner import LocalEdgeNER
+
+            if not LocalEdgeNER.is_available():
+                console.print(
+                    "\n[bold red]✖ Pass 2 Edge AI dependencies not found.[/bold red]\n\n"
+                    "  To enable deep local AI extraction (unstructured names, addresses, health data),\n"
+                    "  please install the optional AI extra:\n\n"
+                    '    [bold green]pip install "easydp-pii-scanner[ai]"[/bold green]\n'
+                    "  or:\n"
+                    "    [bold green]pip install gliner protobuf[/bold green]\n"
+                )
+                return 1
+
+            if not parsed.quiet:
+                with console.status(
+                    "[bold cyan]Initializing Pass 2 Edge AI model (urchade/gliner_small-v2.1)...[/bold cyan]",
+                    spinner="dots",
+                ):
+                    ai_ner = LocalEdgeNER()
+                    ai_ner.load_model()
+                console.print(
+                    " [bold green]✔[/bold green] [dim]Pass 2 Edge AI NER active (100% offline CPU mode)[/dim]"
+                )
+            else:
+                ai_ner = LocalEdgeNER()
+                ai_ner.load_model()
+
+        engine = ScannerEngine(ai_ner=ai_ner)
         summary = None
 
         if parsed.quiet:

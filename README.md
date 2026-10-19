@@ -220,9 +220,13 @@ easydp-scan scan . --format html,json
 
 ### Method 4: Python / Pip / Pipx
 ```bash
-# Standard installation from PyPI:
+# Standard installation from PyPI (Pass 1 instant checksums & rules):
 pip install easydp-pii-scanner
 easydp-scan scan . --format html,json
+
+# With optional Pass 2 Local Edge AI NER (unstructured names, addresses, health conditions):
+pip install "easydp-pii-scanner[ai]"
+easydp-scan scan . --ai
 
 # Or isolated CLI execution via pipx:
 pipx run easydp-pii-scanner scan .
@@ -288,6 +292,9 @@ easydp-scan scan . --log-file ./reports/scanner.log
 
 # Quiet mode for automated CI/CD pipelines:
 easydp-scan scan ./data -f json -q
+
+# Pass 2 Local Edge AI NER (zero-cloud CPU inference for unstructured names, addresses, and health data):
+easydp-scan scan . --ai
 ```
 
 > **Real-Time Analysis & Clean Terminal Logging**: The scanner includes a live progress bar tracking file analysis across directories. Raw library warnings (from `openpyxl`, `pypdf`, etc.) are cleanly suppressed from the terminal and routed to `reports/scanner.log` for troubleshooting. Clickable `file://` hyperlinks are printed upon completion for instant one-click report access.
