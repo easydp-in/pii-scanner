@@ -287,17 +287,33 @@ def run_cli(args: list[str] | None = None) -> int:
 
                     if choice in ("", "y", "yes"):
                         console.print(
-                            '\n[dim]Installing: pip install "easydp-pii-scanner[ai]"...[/dim]'
+                            r'\n[dim]Installing: pip install "easydp-pii-scanner\[ai]"...[/dim]'
                         )
-                        res = subprocess.run(
-                            [sys.executable, "-m", "pip", "install", "easydp-pii-scanner[ai]"]
-                        )
-                        if res.returncode != 0:
-                            console.print("[dim]Retrying: pip install gliner protobuf...[/dim]")
-                            res = subprocess.run(
-                                [sys.executable, "-m", "pip", "install", "gliner", "protobuf"]
+
+                        def _run_pip(
+                            extra_args: list[str],
+                        ) -> subprocess.CompletedProcess[bytes] | None:
+                            base_cmd = [sys.executable, "-m", "pip", "install"]
+                            # 1. Standard install
+                            p = subprocess.run(base_cmd + extra_args)
+                            if p.returncode == 0:
+                                return p
+                            # 2. PEP 668 user install for Homebrew / managed environments
+                            p = subprocess.run(
+                                base_cmd + ["--user", "--break-system-packages"] + extra_args
                             )
-                        if res.returncode == 0:
+                            if p.returncode == 0:
+                                return p
+                            # 3. Direct break-system-packages
+                            return subprocess.run(
+                                base_cmd + ["--break-system-packages"] + extra_args
+                            )
+
+                        res = _run_pip(["easydp-pii-scanner[ai]"])
+                        if not res or res.returncode != 0:
+                            console.print("[dim]Retrying: pip install gliner protobuf...[/dim]")
+                            res = _run_pip(["gliner", "protobuf"])
+                        if res and res.returncode == 0:
                             importlib.invalidate_caches()
                             installed = LocalEdgeNER.is_available()
                             if installed:
