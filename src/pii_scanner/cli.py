@@ -271,6 +271,7 @@ def run_cli(args: list[str] | None = None) -> int:
 
             if getattr(sys, "frozen", False):
                 import site
+
                 user_site = site.getusersitepackages()
                 if user_site and user_site not in sys.path and os.path.exists(user_site):
                     sys.path.insert(0, user_site)
@@ -292,7 +293,8 @@ def run_cli(args: list[str] | None = None) -> int:
                             "\n[bold red]✖ Local AI Mode requires Python 3.10+ installed on this computer.[/bold red]\n\n"
                             "  The standalone binary runs ⚡ Normal Mode (statutory checksums & rules) with zero dependencies.\n"
                             "  To use 🧠 Local AI Mode (Pass 2 Edge AI NER), please install Python 3.10+ and run:\n\n"
-                            r'    [bold green]pip install "easydp-pii-scanner\[ai]"[/bold green]' + "\n"
+                            r'    [bold green]pip install "easydp-pii-scanner\[ai]"[/bold green]'
+                            + "\n"
                             "    [bold green]easydp-scan scan . --local-ai[/bold green]\n"
                         )
                         return 1
