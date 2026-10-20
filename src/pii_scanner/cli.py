@@ -287,7 +287,7 @@ def run_cli(args: list[str] | None = None) -> int:
                 if getattr(sys, "frozen", False):
                     import shutil
 
-                    py_exe = shutil.which("python3") or shutil.which("python")
+                    py_exe = shutil.which("python3") or shutil.which("python") or ""
                     if not py_exe:
                         console.print(
                             "\n[bold red]✖ Local AI Mode requires Python 3.10+ installed on this computer.[/bold red]\n\n"
