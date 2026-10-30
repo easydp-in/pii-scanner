@@ -1,11 +1,93 @@
 """Unit tests for Pass 2 Local Edge AI NER inference and integration."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
-from pii_scanner.ai.edge_ner import LocalEdgeNER
+from pii_scanner.ai.edge_ner import LocalEdgeNER, check_system_resources
 from pii_scanner.cli import run_cli
 from pii_scanner.core.models import PIICategory, PIIType
 from pii_scanner.extractors.text_scanner import TextExtractor
+
+
+def test_check_system_resources_adequate() -> None:
+    with (
+        patch("shutil.disk_usage", return_value=MagicMock(free=10 * (1024**3))),
+        patch("platform.system", return_value="Linux"),
+        patch(
+            "builtins.open",
+            mock_open(read_data="MemTotal:       16384000 kB\nMemAvailable:    8192000 kB\n"),
+        ),
+    ):
+        res = check_system_resources()
+        assert res["disk_ok"] is True
+        assert res["ram_ok"] is True
+        assert res["free_disk_gb"] == 10.0
+        assert res["available_ram_gb"] == 7.8
+        assert len(res["warnings"]) == 0
+
+
+def test_check_system_resources_low_disk() -> None:
+    with (
+        patch("shutil.disk_usage", return_value=MagicMock(free=500 * (1024**2))),  # ~0.5 GB
+        patch("platform.system", return_value="UnknownOS"),
+    ):
+        res = check_system_resources()
+        assert res["disk_ok"] is False
+        assert any("Low disk space" in w for w in res["warnings"])
+
+
+def test_check_system_resources_low_ram() -> None:
+    with (
+        patch("shutil.disk_usage", return_value=MagicMock(free=10 * (1024**3))),
+        patch("platform.system", return_value="Linux"),
+        patch(
+            "builtins.open",
+            mock_open(
+                read_data="MemTotal:       8000000 kB\nMemAvailable:    1000000 kB\n"
+            ),  # ~1GB
+        ),
+    ):
+        res = check_system_resources()
+        assert res["ram_ok"] is False
+        assert any("Low memory" in w for w in res["warnings"])
+
+
+def test_cli_ai_system_check_insufficient_disk(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    with (
+        patch("pii_scanner.ai.edge_ner.LocalEdgeNER.is_available", return_value=True),
+        patch(
+            "pii_scanner.ai.edge_ner.check_system_resources",
+            return_value={
+                "total_ram_gb": 16.0,
+                "available_ram_gb": 8.0,
+                "free_disk_gb": 0.5,
+                "ram_ok": True,
+                "disk_ok": False,
+                "warnings": ["Low disk space: 0.5 GB free."],
+            },
+        ),
+    ):
+        exit_code = run_cli(["scan", str(tmp_path), "--local-ai", "-q"])
+        assert exit_code == 1
+
+
+def test_cli_ai_system_check_insufficient_ram_abort(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    with (
+        patch("pii_scanner.ai.edge_ner.LocalEdgeNER.is_available", return_value=True),
+        patch(
+            "pii_scanner.ai.edge_ner.check_system_resources",
+            return_value={
+                "total_ram_gb": 8.0,
+                "available_ram_gb": 1.0,
+                "free_disk_gb": 10.0,
+                "ram_ok": False,
+                "disk_ok": True,
+                "warnings": ["Low memory: 1.0 GB available."],
+            },
+        ),
+    ):
+        # Non-interactive / quiet aborts safely
+        exit_code = run_cli(["scan", str(tmp_path), "--local-ai", "-q"])
+        assert exit_code == 1
 
 
 def test_local_edge_ner_availability() -> None:

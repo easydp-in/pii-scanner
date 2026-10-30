@@ -267,7 +267,7 @@ def run_cli(args: list[str] | None = None) -> int:
             import os
             import subprocess
 
-            from pii_scanner.ai.edge_ner import LocalEdgeNER
+            from pii_scanner.ai.edge_ner import LocalEdgeNER, check_system_resources
 
             if getattr(sys, "frozen", False):
                 import site
@@ -361,6 +361,55 @@ def run_cli(args: list[str] | None = None) -> int:
                         "    [bold green]pip install gliner protobuf[/bold green]\n"
                     )
                     return 1
+
+            # --- Pre-flight system resource check ---
+            sys_check = check_system_resources()
+            if sys_check["warnings"]:
+                console.print()
+                for w in sys_check["warnings"]:
+                    console.print(f"  [bold yellow]⚠ {w}[/bold yellow]")
+
+                stats_parts: list[str] = []
+                if sys_check["total_ram_gb"] is not None:
+                    stats_parts.append(
+                        f"RAM: {sys_check['available_ram_gb']} GB free / {sys_check['total_ram_gb']} GB total"
+                    )
+                if sys_check["free_disk_gb"] is not None:
+                    stats_parts.append(f"Disk: {sys_check['free_disk_gb']} GB free")
+                if stats_parts:
+                    console.print(f"  [dim]System: {' · '.join(stats_parts)}[/dim]")
+
+                if not sys_check["disk_ok"]:
+                    console.print(
+                        "\n  [bold red]✖ Not enough disk space to download the AI model (~600 MB).[/bold red]\n"
+                        "  Free up disk space and try again, or run without --local-ai for Normal Mode.\n"
+                    )
+                    return 1
+
+                if not sys_check["ram_ok"]:
+                    if sys.stdin.isatty() and not parsed.quiet:
+                        try:
+                            choice = (
+                                console.input(
+                                    "\n  [bold cyan]Continue anyway? Loading the model may cause system slowness. [y/N]: [/bold cyan]"
+                                )
+                                .strip()
+                                .lower()
+                            )
+                        except (EOFError, KeyboardInterrupt):
+                            return 1
+                        if choice not in ("y", "yes"):
+                            console.print(
+                                "\n  [dim]Tip: Close other applications to free memory, then retry with --local-ai.[/dim]\n"
+                                "  [dim]Or run without --local-ai for Normal Mode (zero extra memory needed).[/dim]\n"
+                            )
+                            return 1
+                    else:
+                        console.print(
+                            "\n  [bold red]✖ Insufficient memory for Local AI Mode.[/bold red]\n"
+                            "  [dim]Close other applications or run without --local-ai for Normal Mode.[/dim]\n"
+                        )
+                        return 1
 
             if not parsed.quiet:
                 with console.status(

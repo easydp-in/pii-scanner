@@ -3,27 +3,82 @@
 /**
  * EasyDP Local PII Scanner - NPM Launcher
  * https://easydp.in
+ *
+ * This wrapper finds a pip-installed `easydp-scan` binary on PATH
+ * and delegates to it. If none is found, it falls back to invoking
+ * Python directly (`python3 -m pii_scanner.cli`).
+ *
+ * Self-reference guard: when installed globally via npm, the npm bin
+ * shim is also called `easydp-scan`. We detect and skip it to avoid
+ * an infinite spawn loop.
  */
 
 const { spawn, execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 const args = process.argv.slice(2);
 
-function checkCliCommand() {
+/**
+ * Check if a resolved binary path is this script (or an npm-generated
+ * shell wrapper that delegates to it).
+ */
+function isSelfReference(binPath) {
+  try {
+    const resolvedBin = fs.realpathSync(binPath);
+    const resolvedSelf = fs.realpathSync(__filename);
+    if (resolvedBin === resolvedSelf) return true;
+  } catch (_) {
+    /* ignore resolve errors */
+  }
+
+  // npm sometimes creates a shell/cmd wrapper that calls `node <our-script>`.
+  // Read the first few hundred bytes and look for telltale markers.
+  try {
+    const head = fs.readFileSync(binPath, 'utf8').substring(0, 512);
+    if (
+      head.includes('easydp-scan.js') &&
+      (head.includes('/usr/bin/env node') || head.includes('"$basedir/node"'))
+    ) {
+      return true;
+    }
+  } catch (_) {
+    /* binary or unreadable file — not a JS shim */
+  }
+
+  return false;
+}
+
+/**
+ * Search PATH for a pip-installed `easydp-scan` binary, skipping any
+ * matches that resolve back to this npm wrapper script.
+ */
+function findPipBinary() {
   try {
     const isWin = process.platform === 'win32';
-    const checkCmd = isWin ? 'where easydp-scan' : 'which easydp-scan';
-    const out = execSync(checkCmd, { stdio: 'pipe' }).toString().trim();
-    if (out) return 'easydp-scan';
-  } catch (e) {
-    // Not found in PATH
+    // `where` on Windows lists all matches; `which` on Unix lists only the first.
+    const checkCmd = isWin ? 'where easydp-scan' : 'which -a easydp-scan 2>/dev/null || which easydp-scan 2>/dev/null';
+    const rawOut = execSync(checkCmd, { stdio: 'pipe' }).toString().trim();
+    if (!rawOut) return null;
+
+    const candidates = rawOut.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+
+    for (const candidate of candidates) {
+      if (!isSelfReference(candidate)) {
+        return candidate;
+      }
+    }
+  } catch (_) {
+    // `which`/`where` found nothing
   }
   return null;
 }
 
-const cliCmd = checkCliCommand();
-if (cliCmd) {
-  const child = spawn(cliCmd, args, { stdio: 'inherit' });
+// --- Main ---
+
+const pipBin = findPipBinary();
+if (pipBin) {
+  const child = spawn(pipBin, args, { stdio: 'inherit' });
   child.on('exit', (code) => process.exit(code || 0));
   child.on('error', () => runPython());
 } else {
