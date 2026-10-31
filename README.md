@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://github.com/easydp-in/pii-scanner/actions/workflows/ci.yml"><img src="https://github.com/easydp-in/pii-scanner/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI Status"/></a>
   <a href="https://github.com/easydp-in/pii-scanner/releases/latest"><img src="https://img.shields.io/github/v/release/easydp-in/pii-scanner?color=blue&label=Release" alt="Latest Release"/></a>
-  <a href="https://github.com/easydp-in/pii-scanner/actions/workflows/smoke.yml"><img src="https://github.com/easydp-in/pii-scanner/actions/workflows/smoke.yml/badge.svg" alt="Smoke Tests"/></a>
+  <a href="https://github.com/easydp-in/pii-scanner/actions/workflows/smoke.yml"><img src="https://github.com/easydp-in/pii-scanner/actions/workflows/smoke.yml/badge.svg?branch=main" alt="Smoke Tests"/></a>
   <a href="https://github.com/easydp-in/pii-scanner/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg" alt="License"/></a>
 </p>
 
